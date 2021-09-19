@@ -29,6 +29,12 @@
     <Compile Include="main.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="RandomForest.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Rnn.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|ContinuumAnalytics|Anaconda38-64" />

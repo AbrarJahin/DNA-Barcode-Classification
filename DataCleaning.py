@@ -40,10 +40,11 @@ class DataCleaning(object):
 	#Lambda Functions - End
 
 	def __init__(self, train_x_file = "train_features.csv", train_y_file = "train_labels.csv"):
-		dataX = pd.read_csv(self.getAbsFilePath("data/" + train_x_file))
-		dataY = pd.read_csv(self.getAbsFilePath("data/" + train_y_file))
+		dataX = pd.read_csv(self.getAbsFilePath("data/" + train_x_file), index_col=0)
+		dataY = pd.read_csv(self.getAbsFilePath("data/" + train_y_file), index_col=0)
 		self.total_data = dataX
 		self.total_data['labels'] = dataY['labels']
+		self.lebels = set(dataY['labels'])
 
 	def getAbsFilePath(self, file_path) -> str:
 		script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
@@ -84,6 +85,7 @@ class DataCleaning(object):
 		return
 
 	def preprocess(self, word_len = 4) -> None:
+		# Y don't need to be preprocessed because it is already set to numeric values
 		self.total_data['dna'] = self.total_data['dna'].apply(lambda x: self.splitWords(x, word_len))
 		return
 
@@ -91,13 +93,14 @@ class DataCleaning(object):
 		self.total_data.to_csv(self.getAbsFilePath("data/" + file_name))
 
 	def generateSentenceEmbedding(self) -> None:
+		#sbert
 		model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
 
 		for index, row in self.total_data.iterrows():
 			try:
 				embedding = model.encode(self.total_data.at[index, 'dna'])
 				for embadeIndex, val in enumerate(embedding):
-					self.total_data.at[index, "paraphrase-MiniLM-L6-v2_embedding_" + str(embadeIndex).zfill(3)] = val
+					self.total_data.at[index, "sbert_" + str(embadeIndex).zfill(3)] = val
 			except Exception as err:
 				print(f'Error occurred during updating row of train_dna: {err}')
 
@@ -154,23 +157,22 @@ class DataCleaning(object):
 			except Exception as err:
 				print(f'Error occurred during updating row of d2vec: {err}')
 
-	def getTrainTestSplit(self, file_name = "input_data.csv"):
-		self.total_data = pd.read_csv(self.getAbsFilePath("data/" + file_name))
+	def getTrainTestSplit(self, file_name = "input_data.csv", embedding = "sbert"):
+		self.total_data = pd.read_csv(self.getAbsFilePath("data/" + file_name), index_col=0)
 		train, test = train_test_split(self.total_data, test_size=0.2)
 
 		y_tr =  train[['labels']]
 		y_test = test[['labels']]
-
-		X_tr = train[[s for s in train.columns if "paraphrase-MiniLM-L6-v2_embedding_" in s]]
-		X_test = test[[s for s in test.columns if "paraphrase-MiniLM-L6-v2_embedding_" in s]]
-
-		#X_tr = train[[s for s in train.columns if "w2vec_" in s]]
-		#X_test = test[[s for s in test.columns if "w2vec_" in s]]
-
-		#X_tr = train[[s for s in train.columns if "d2vec_" in s]]
-		#X_test = test[[s for s in test.columns if "d2vec_" in s]]
-
-		#X_tr = train[['dna']]
-		#X_test = test[['dna']]
-
+		if embedding=="sbert":	#paraphrase-MiniLM-L6-v2_embedding
+			X_tr = train[[s for s in train.columns if "sbert_" in s]]
+			X_test = test[[s for s in test.columns if "sbert_" in s]]
+		elif embedding=="w2vec":
+			X_tr = train[[s for s in train.columns if "w2vec_" in s]]
+			X_test = test[[s for s in test.columns if "w2vec_" in s]]
+		elif embedding == "d2vec":
+			X_tr = train[[s for s in train.columns if "d2vec_" in s]]
+			X_test = test[[s for s in test.columns if "d2vec_" in s]]
+		else:
+			X_tr = train[['dna']]
+			X_test = test[['dna']]
 		return (X_tr,y_tr), (X_test,y_test)
