@@ -19,7 +19,7 @@ from gensim.models.phrases import Phrases, Phraser
 from gensim.models import Word2Vec
 
 class DataCleaning(object):
-	def __init__(self, train_x_file = "./data/train_features.csv", train_y_file = "./data/train_labels.csv"):
+	def __init__(self, train_x_file = "data/train_features.csv", train_y_file = "data/train_labels.csv"):
 		self.dataX = pd.read_csv(train_x_file)
 		self.dataY = pd.read_csv(train_y_file)
 		self.total_data = self.dataX
@@ -42,7 +42,7 @@ class DataCleaning(object):
 		return
 
 	def save(self, file_name = "input_data.csv") -> None:
-		self.total_data.to_csv("./data/" + file_name)
+		self.total_data.to_csv("data/" + file_name)
 
 	def generateSentenceEmbedding(self) -> None:
 		model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
@@ -108,7 +108,7 @@ class DataCleaning(object):
 			except Exception as err:
 				print(f'Error occurred during updating row of d2vec: {err}')
 
-	def getTrainTestSplit(self, file_location = "./data/input_data.csv"):
+	def getTrainTestSplit(self, file_location = "data/input_data.csv"):
 		self.total_data = pd.read_csv(file_location)
 		train, test = train_test_split(self.total_data, test_size=0.2)
 

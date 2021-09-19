@@ -7,7 +7,7 @@ def main():
     dataCleaning.clean(4)
     #dataCleaning.generateSentenceEmbedding()
     #dataCleaning.generateWord2VecEmbedding()
-    dataCleaning.generateDoc2VecEmbedding(epochs=5)
+    dataCleaning.generateDoc2VecEmbedding(epochs=100)
     dataCleaning.save()
 
     
