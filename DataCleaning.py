@@ -20,8 +20,25 @@ from gensim.models import Word2Vec
 import os
 import random
 import math
+import string
 
 class DataCleaning(object):
+	#Lambda Functions - Start
+	def cleanString(self, text: str)-> str:
+		#remove punctuation
+		text = "".join([char for char in text if char not in string.punctuation])
+		# Convert all to lower
+			#not needed in here
+		# Remove Stop Words
+			#not needed in here
+		return text
+
+	def splitWords(self, dna_seq: str, word_len: int)-> str:
+		strArray = [dna_seq[index : index + word_len] for index in range(0, len(dna_seq), word_len)]
+		text = " ".join(strArray)
+		return text
+	#Lambda Functions - End
+
 	def __init__(self, train_x_file = "train_features.csv", train_y_file = "train_labels.csv"):
 		dataX = pd.read_csv(self.getAbsFilePath("data/" + train_x_file))
 		dataY = pd.read_csv(self.getAbsFilePath("data/" + train_y_file))
@@ -31,10 +48,6 @@ class DataCleaning(object):
 	def getAbsFilePath(self, file_path) -> str:
 		script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
 		return os.path.join(script_dir, file_path)
-
-	def clean(self, word_len = 1) -> None:
-		#Data is already cleaned
-		return
 
 	def upDownScale(self, ratio = 10) -> None:
 		#Upscale data with lowest frequency or upscale data with highest frequency
@@ -51,7 +64,7 @@ class DataCleaning(object):
 		print("Before Upscale/Augmentation-" + str(self.total_data.shape))
 		for label, count in self.total_data['labels'].value_counts().iteritems():
 			self.upScale(label_index[label], markerCountNumber-count)
-		print("After Upscale/Augmentation-" + str(self.total_data.shape))
+		print("After Upscale/Augmentation- " + str(self.total_data.shape))
 		return
 
 	def upScale(self, id_list, no_of_new_data) -> None:
@@ -66,20 +79,12 @@ class DataCleaning(object):
 				)
 		return None
 
-	def preprocess(self, word_len = 1) -> None:
-		row_to_remove_index, label_index = [], defaultdict(list)
-		unique = set()
-		for index, row in self.total_data.iterrows():
-			try:
-				dna_seq = self.total_data.at[index, 'dna'].replace('-', '')
-				strArray = [dna_seq[index : index + word_len] for index in range(0, len(dna_seq), word_len)]
-				#self.total_data.at[index, 'dna'] = " ".join(self.total_data.at[index, 'dna'])
-				self.total_data.at[index, 'dna'] = " ".join(strArray)
-				if len(self.total_data.at[index, 'dna']) == 0: row_to_remove_index.append(index)
-				unique.add(self.total_data.at[index, 'labels'])
-				label_index[self.total_data.at[index, 'labels']].append(index)
-			except Exception as err:
-				print(f'Error occurred during updating row of train_dna: {err}')
+	def clean(self, word_len = 1) -> None:
+		self.total_data['dna'] = self.total_data['dna'].apply(lambda x: self.cleanString(x))
+		return
+
+	def preprocess(self, word_len = 4) -> None:
+		self.total_data['dna'] = self.total_data['dna'].apply(lambda x: self.splitWords(x, word_len))
 		return
 
 	def save(self, file_name = "input_data.csv") -> None:
@@ -101,9 +106,9 @@ class DataCleaning(object):
 		# And help is in here- https://www.linkedin.com/learning/advanced-nlp-with-python-for-machine-learning/how-to-prep-word-vectors-for-modeling?u=87254282
 		preprocessed_data = self.total_data['dna'].apply(lambda x: gensim.utils.simple_preprocess(x))
 		w2v_model = gensim.models.Word2Vec(preprocessed_data,
-                                   vector_size=vector_size,
-                                   window=window,
-                                   min_count=min_count,
+								   vector_size=vector_size,
+								   window=window,
+								   min_count=min_count,
 								   epochs=epochs,
 								   workers=15,
 								   sg=1)
@@ -112,7 +117,7 @@ class DataCleaning(object):
 		w2v_model.wv.index_to_key
 		# Generate aggregated sentence vectors based on the word vectors for each word in the sentence
 		w2v_vect = np.array([np.array([w2v_model.wv[i] for i in ls if i in w2v_model.wv.index_to_key])
-                     for ls in self.total_data['dna']])
+					 for ls in self.total_data['dna']])
 		# Compute sentence vectors by averaging the word vectors for the words contained in the sentence
 		w2v_vect_avg = []
 
@@ -136,9 +141,9 @@ class DataCleaning(object):
 		tagged_docs_tr = [gensim.models.doc2vec.TaggedDocument(v, [i]) for i, v in enumerate(self.total_data['dna'])]
 
 		d2v_model = gensim.models.Doc2Vec(tagged_docs_tr,
-                                   vector_size=vector_size,
-                                   window=window,
-                                   min_count=min_count,
+								   vector_size=vector_size,
+								   window=window,
+								   min_count=min_count,
 								   epochs=epochs,
 								   workers=15)
 		for index, row in self.total_data.iterrows():
