@@ -44,3 +44,4 @@ nodeLanguageServer.*/**
 dist/**
 
 data/input_data.csv
+.env

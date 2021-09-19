@@ -1,9 +1,12 @@
 import tensorflow as tf
 from DataCleaning import DataCleaning
 from RandomForest import RandomForest
+import configparser
 
 # Defining main function 
 def main():
+    config = configparser.ConfigParser()
+    config.read('.env')
     #Embedding Config
     isEmbiddingDone = True
     embedding = "sbert" #"w2vec" "d2vec"
