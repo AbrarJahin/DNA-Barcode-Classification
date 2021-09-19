@@ -86,20 +86,27 @@ class DataCleaning(object):
 		for index, row in self.total_data.iterrows():
 			try:
 				for embadeIndex, val in enumerate(w2v_vect_avg[index]):
-					self.total_data.at[index, "w2vec_" + str(embadeIndex).zfill(3)] = val
+					self.total_data.at[index, "w2vec_" + str(embadeIndex).zfill(4)] = val
 			except Exception as err:
 				print(f'Error occurred during updating row of w2vec: {err}')
 
-	def generateDoc2VecEmbedding(self) -> None:
-		model = gensim_downloader.load('glove-wiki-gigaword-100')
+	def generateDoc2VecEmbedding(self, vector_size=200, window=20, epochs=100, min_count=2) -> None:
+		#https://www.linkedin.com/learning/advanced-nlp-with-python-for-machine-learning/how-to-implement-doc2vec?u=87254282
+		tagged_docs_tr = [gensim.models.doc2vec.TaggedDocument(v, [i]) for i, v in enumerate(self.total_data['dna'])]
 
+		d2v_model = gensim.models.Doc2Vec(tagged_docs_tr,
+                                   vector_size=vector_size,
+                                   window=window,
+                                   min_count=min_count,
+								   epochs=epochs,
+								   workers=15)
 		for index, row in self.total_data.iterrows():
 			try:
-				embedding = model.encode(self.total_data.at[index, 'dna'])
+				embedding = d2v_model.infer_vector(self.total_data.at[index, 'dna'].split())
 				for embadeIndex, val in enumerate(embedding):
-					self.total_data.at[index, "paraphrase-MiniLM-L6-v2_embedding_" + str(embadeIndex).zfill(3)] = val
+					self.total_data.at[index, "d2vec_" + str(embadeIndex).zfill(4)] = val
 			except Exception as err:
-				print(f'Error occurred during updating row of train_dna: {err}')
+				print(f'Error occurred during updating row of d2vec: {err}')
 
 	def getTrainTestSplit(self, file_location = "./data/input_data.csv"):
 		self.total_data = pd.read_csv(file_location)
@@ -110,6 +117,12 @@ class DataCleaning(object):
 
 		X_tr = train[[s for s in train.columns if "paraphrase-MiniLM-L6-v2_embedding_" in s]]
 		X_test = test[[s for s in test.columns if "paraphrase-MiniLM-L6-v2_embedding_" in s]]
+
+		#X_tr = train[[s for s in train.columns if "w2vec_" in s]]
+		#X_test = test[[s for s in test.columns if "w2vec_" in s]]
+
+		#X_tr = train[[s for s in train.columns if "d2vec_" in s]]
+		#X_test = test[[s for s in test.columns if "d2vec_" in s]]
 
 		#X_tr = train[['dna']]
 		#X_test = test[['dna']]
