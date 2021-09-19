@@ -8,13 +8,13 @@ def main():
     config = configparser.ConfigParser()
     config.read('.env')
     #Embedding Config
-    isEmbiddingDone = True
-    embedding = "sbert" #"w2vec" "d2vec"
-    perWordLength = 4
-    outputColumnCount=200 #Embedding row number
-    wordsWindowSize=20
-    epochCount=100
-    minIgnoreCount=2
+    isEmbiddingDone = config.get('Default','isEmbiddingDone') == 'True'
+    embedding = config.get('Default','embedding') #"sbert", "w2vec" "d2vec"
+    perWordLength = int(config.get('Default','perWordLength'))
+    outputColumnCount = int(config.get('Default','outputColumnCount')) #Embedding row number
+    wordsWindowSize = int(config.get('Default','wordsWindowSize'))
+    epochCount = int(config.get('Default','epochCount'))
+    minIgnoreCount = int(config.get('Default','minIgnoreCount'))
 
     #Start Embedding
     dataCleaning = DataCleaning()
