@@ -159,7 +159,7 @@ class DataCleaning(object):
 				print(f'Error occurred during updating row of d2vec: {err}')
 
 	def getTrainTestSplit(self, file_name = "input_data.csv", embedding = "sbert"):
-		self.total_data = pd.read_csv(self.getAbsFilePath("data/" + file_name), index_col=0)
+		self.total_data = pd.read_csv(self.getAbsFilePath(file_name), index_col=0)
 		train, test = train_test_split(self.total_data, test_size=0.2)
 
 		y_tr =  train[['labels']]
