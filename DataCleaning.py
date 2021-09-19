@@ -43,7 +43,6 @@ class DataCleaning(object):
 		dataX = pd.read_csv(self.getAbsFilePath(train_x_file), index_col=0)
 		dataY = pd.read_csv(self.getAbsFilePath(train_y_file), index_col=0)
 		self.total_data = dataX
-		print(dataY.keys())
 		self.total_data['labels'] = dataY['labels']
 		self.lebels = set(dataY['labels'])
 
