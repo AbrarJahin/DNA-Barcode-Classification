@@ -10,7 +10,6 @@ def main():
     dataCleaning.generateDoc2VecEmbedding(epochs=100)
     dataCleaning.save()
 
-    
 
 # Using the special variable  
 # __name__ 

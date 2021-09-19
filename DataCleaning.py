@@ -17,13 +17,18 @@ logging.basicConfig(format="%(levelname)s - %(asctime)s: %(message)s", datefmt= 
 #automatically detect common phrases (bigrams) from a list of sentences.
 from gensim.models.phrases import Phrases, Phraser
 from gensim.models import Word2Vec
+import os
 
 class DataCleaning(object):
-	def __init__(self, train_x_file = "data/train_features.csv", train_y_file = "data/train_labels.csv"):
-		self.dataX = pd.read_csv(train_x_file)
-		self.dataY = pd.read_csv(train_y_file)
+	def __init__(self, train_x_file = "train_features.csv", train_y_file = "train_labels.csv"):
+		self.dataX = pd.read_csv(self.getAbsFilePath("data/" + train_x_file))
+		self.dataY = pd.read_csv(self.getAbsFilePath("data/" + train_y_file))
 		self.total_data = self.dataX
 		self.total_data['labels'] = self.dataY['labels']
+
+	def getAbsFilePath(self, file_path) -> str:
+		script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+		return os.path.join(script_dir, file_path)
 
 	def clean(self, word_len = 1) -> None:
 		row_to_remove_index, label_index = [], defaultdict(list)
@@ -42,7 +47,7 @@ class DataCleaning(object):
 		return
 
 	def save(self, file_name = "input_data.csv") -> None:
-		self.total_data.to_csv("data/" + file_name)
+		self.total_data.to_csv(self.getAbsFilePath("data/" + file_name))
 
 	def generateSentenceEmbedding(self) -> None:
 		model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
@@ -108,8 +113,8 @@ class DataCleaning(object):
 			except Exception as err:
 				print(f'Error occurred during updating row of d2vec: {err}')
 
-	def getTrainTestSplit(self, file_location = "data/input_data.csv"):
-		self.total_data = pd.read_csv(file_location)
+	def getTrainTestSplit(self, file_name = "input_data.csv"):
+		self.total_data = pd.read_csv(self.getAbsFilePath("data/" + file_name))
 		train, test = train_test_split(self.total_data, test_size=0.2)
 
 		y_tr =  train[['labels']]
