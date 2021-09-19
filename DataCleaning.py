@@ -40,15 +40,15 @@ class DataCleaning(object):
 	#Lambda Functions - End
 
 	def __init__(self, train_x_file = "train_features.csv", train_y_file = "train_labels.csv"):
-		dataX = pd.read_csv(self.getAbsFilePath("data/" + train_x_file), index_col=0)
-		dataY = pd.read_csv(self.getAbsFilePath("data/" + train_y_file), index_col=0)
+		dataX = pd.read_csv(self.getAbsFilePath(train_x_file), index_col=0)
+		dataY = pd.read_csv(self.getAbsFilePath(train_y_file), index_col=0)
 		self.total_data = dataX
 		self.total_data['labels'] = dataY['labels']
 		self.lebels = set(dataY['labels'])
 
-	def getAbsFilePath(self, file_path) -> str:
+	def getAbsFilePath(self, file_name) -> str:
 		script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-		return os.path.join(script_dir, file_path)
+		return os.path.join(script_dir, "data/" + file_name)
 
 	def upDownScale(self, ratio = 10) -> None:
 		#Upscale data with lowest frequency or upscale data with highest frequency
