@@ -18,19 +18,55 @@ logging.basicConfig(format="%(levelname)s - %(asctime)s: %(message)s", datefmt= 
 from gensim.models.phrases import Phrases, Phraser
 from gensim.models import Word2Vec
 import os
+import random
+import math
 
 class DataCleaning(object):
 	def __init__(self, train_x_file = "train_features.csv", train_y_file = "train_labels.csv"):
-		self.dataX = pd.read_csv(self.getAbsFilePath("data/" + train_x_file))
-		self.dataY = pd.read_csv(self.getAbsFilePath("data/" + train_y_file))
-		self.total_data = self.dataX
-		self.total_data['labels'] = self.dataY['labels']
+		dataX = pd.read_csv(self.getAbsFilePath("data/" + train_x_file))
+		dataY = pd.read_csv(self.getAbsFilePath("data/" + train_y_file))
+		self.total_data = dataX
+		self.total_data['labels'] = dataY['labels']
 
 	def getAbsFilePath(self, file_path) -> str:
 		script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
 		return os.path.join(script_dir, file_path)
 
 	def clean(self, word_len = 1) -> None:
+		#Data is already cleaned
+		return
+
+	def upDownScale(self, ratio = 10) -> None:
+		#Upscale data with lowest frequency or upscale data with highest frequency
+		val_count = self.total_data['labels'].value_counts()
+		#Is needed if data ratio is like 50:1 or 100:1 we need any data upscale, downscale or augmentation
+		#for our data, we are doing upscale - augmentation as highest count is 137 and lowest one is 2, where every categorised data should be at least 137/15 ~ 10
+		label_index = defaultdict(list)
+		for index, row in self.total_data.iterrows():
+			try:
+				label_index[self.total_data.at[index, 'labels']].append(index)
+			except Exception as err:
+				print(f'Error occurred during updating row of train_dna: {err}')
+		markerCountNumber = math.ceil(val_count.max()/ratio)
+		print("Before Upscale/Augmentation-" + str(self.total_data.shape))
+		for label, count in self.total_data['labels'].value_counts().iteritems():
+			self.upScale(label_index[label], markerCountNumber-count)
+		print("After Upscale/Augmentation-" + str(self.total_data.shape))
+		return
+
+	def upScale(self, id_list, no_of_new_data) -> None:
+		if no_of_new_data<0: return
+		for id_to_augment in random.choices(id_list, k = no_of_new_data):
+			#Augmentation is not implemented here, just duplicating data is done in here
+			self.total_data = self.total_data.append({
+						'labels' : self.total_data.at[id_to_augment, 'labels'],
+						'dna' : self.total_data.at[id_to_augment, 'dna']
+					},  
+					ignore_index = True
+				)
+		return None
+
+	def preprocess(self, word_len = 1) -> None:
 		row_to_remove_index, label_index = [], defaultdict(list)
 		unique = set()
 		for index, row in self.total_data.iterrows():
