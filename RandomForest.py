@@ -5,6 +5,7 @@ import math
 from sklearn.metrics import precision_score, recall_score
 from Utils import Utils
 import pickle
+import numpy as np
 
 class RandomForest(object):
 	def __init__(self, X_tr, y_tr, X_test, y_test, number_of_trees=500, model_filename = 'RandomForest.sav'):
@@ -30,11 +31,14 @@ class RandomForest(object):
 			print(precision, recall, e)
 
 	def restoreModel(self):
-		self.model = pickle.load(open(self.model_filename, 'rb'))
+		self.model = pickle.load(open(Utils.getAbsFilePath(self.model_filename), 'rb'))
 		result = self.model.score(self.X_test, self.y_test)
 		print(result)
+		print("RF-Model Loaded Successfully")
 
-	def savePrediction(self, X_pred, embedding = "sbert", output_file_name = str(math.ceil(datetime.datetime.now().timestamp()))+"submission.csv"):
+	def savePrediction(self, X_pred, embedding = "sbert", output_file_name = str(math.ceil(datetime.datetime.now().timestamp()))+"_submission.csv"):
 		y_pred = self.model.predict(X_pred)
-		y_pred.to_csv(Utils.getAbsFilePath(output_file_name))
-		return y_pred
+		df = pd.DataFrame({'id':list(X_pred.index),'labels': list(y_pred)})
+		df = df.set_index(['id'])
+		df.to_csv(Utils.getAbsFilePath(output_file_name))
+		return df

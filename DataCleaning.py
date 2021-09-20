@@ -199,3 +199,15 @@ class DataCleaning(object):
 			X_tr = train[['dna']]
 			X_test = test[['dna']]
 		return (X_tr,y_tr), (X_test,y_test)
+
+	def getXTest(self, file_name = "x_test.csv", embedding = "sbert"):
+		self.X_pred = pd.read_csv(Utils.getAbsFilePath(file_name), index_col=0)
+		if embedding=="sbert":	#paraphrase-MiniLM-L6-v2_embedding
+			X_pred = self.X_pred[[s for s in self.X_pred.columns if "sbert_" in s]]
+		elif embedding=="w2vec":
+			X_pred = self.X_pred[[s for s in self.X_pred.columns if "w2vec_" in s]]
+		elif embedding == "d2vec":
+			X_pred = self.X_pred[[s for s in self.X_pred.columns if "d2vec_" in s]]
+		else:
+			X_pred = self.X_pred[['dna']]
+		return X_pred

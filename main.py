@@ -15,6 +15,7 @@ def main():
     wordsWindowSize = int(config.get('Default','wordsWindowSize'))
     epochCount = int(config.get('Default','epochCount'))
     minIgnoreCount = int(config.get('Default','minIgnoreCount'))
+    isTrainingDone = config.get('Default','isTrainingDone') == 'True'
 
     #Start Embedding
     dataCleaning = DataCleaning()
@@ -34,9 +35,10 @@ def main():
     #Random Forest
     totalNoOfLebels = len(dataCleaning.lebels)  #Not Needed
     model = RandomForest(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-    model.trainAndSaveModel()
+    if not isTrainingDone:
+        model.trainAndSaveModel()
     model.restoreModel()
-    model.savePrediction(dataCleaning.X_pred)
+    model.savePrediction(dataCleaning.getXTest())
 
 # Using the special variable  
 # __name__ 
