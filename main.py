@@ -24,13 +24,13 @@ def main():
         print(e, "=> Default valus set from code")
         isEmbiddingDone = False
         embedding = "d2vec"
-        perWordLength = 4
-        outputColumnCount = 500
+        perWordLength = 5
+        outputColumnCount = 784 #28*28 for 2D CNN
         wordsWindowSize = 50
         epochCount = 200
         minIgnoreCount = 2
         isTrainingDone = False
-        trainingModel = "RndomForest" # "RNN", "CNN", ......
+        trainingModel = "CNN" # "RNN", "CNN", ......
     #Start Embedding
     dataCleaning = DataCleaning()
     if not isEmbiddingDone:

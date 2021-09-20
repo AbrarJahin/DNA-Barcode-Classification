@@ -23,6 +23,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="1. Data Verify.py" />
+    <Compile Include="Cnn.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DataCleaning.py">
       <SubType>Code</SubType>
     </Compile>

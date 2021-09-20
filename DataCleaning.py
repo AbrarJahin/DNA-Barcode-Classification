@@ -90,7 +90,7 @@ class DataCleaning(object):
 		# Y don't need to be preprocessed because it is already set to numeric values
 		self.total_data['dna'] = self.total_data['dna'].apply(lambda x: self.splitWords(x, word_len))
 		self.X_pred['dna'] = self.X_pred['dna'].apply(lambda x: self.splitWords(x, word_len))
-		print("Min 2D dimention of embedding", self.maxWordLen)
+		print("Max word in a scentence:", self.maxWordLen)
 		return
 
 	def save(self, file_name = "input_data.csv", x_test_file_name = "x_test.csv") -> None:
