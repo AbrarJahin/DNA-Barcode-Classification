@@ -18,8 +18,15 @@ def main():
         minIgnoreCount = int(config.get('Default','minIgnoreCount'))
         isTrainingDone = config.get('Default','isTrainingDone') == 'True'
     except Exception as e:
-        print("Config File Read Failed", e)
-        return
+        print(e, "=> Default valus set from code")
+        isEmbiddingDone = False
+        embedding = "d2vec"
+        perWordLength = 4
+        outputColumnCount = 1500
+        wordsWindowSize = 50
+        epochCount = 200
+        minIgnoreCount = 2
+        isTrainingDone
     #Start Embedding
     dataCleaning = DataCleaning()
     if not isEmbiddingDone:
