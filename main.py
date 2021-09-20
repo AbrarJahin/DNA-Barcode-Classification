@@ -17,16 +17,18 @@ def main():
         epochCount = int(config.get('Default','epochCount'))
         minIgnoreCount = int(config.get('Default','minIgnoreCount'))
         isTrainingDone = config.get('Default','isTrainingDone') == 'True'
+        trainingModel = config.get('Default','trainingModel')
     except Exception as e:
         print(e, "=> Default valus set from code")
         isEmbiddingDone = False
         embedding = "d2vec"
         perWordLength = 4
-        outputColumnCount = 1500
+        outputColumnCount = 500
         wordsWindowSize = 50
         epochCount = 200
         minIgnoreCount = 2
         isTrainingDone = False
+        trainingModel = "RndomForest" # "RNN", "CNN"
     #Start Embedding
     dataCleaning = DataCleaning()
     if not isEmbiddingDone:
@@ -42,13 +44,16 @@ def main():
         dataCleaning.save()
 
     (X_tr,y_tr), (X_test,y_test) = dataCleaning.getTrainTestSplit(embedding = embedding)
-    #Random Forest
-    totalNoOfLebels = len(dataCleaning.lebels)  #Not Needed
-    model = RandomForest(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-    if not isTrainingDone:
-        model.trainAndSaveModel()
-    model.restoreModel()
-    model.savePrediction(dataCleaning.getXTest())
+    X_pred = dataCleaning.getXTest()
+    if trainingModel == "RndomForest": #Random Forest
+        totalNoOfLebels = len(dataCleaning.lebels)  #Not Needed
+        model = RandomForest(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
+        if not isTrainingDone:
+            model.trainAndSaveModel()
+        model.restoreModel()
+        model.savePrediction(X_pred)
+    elif trainingModel == "RNN": #RNN
+        model = Rnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
 
 # Using the special variable  
 # __name__ 

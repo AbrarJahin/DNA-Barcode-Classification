@@ -16,8 +16,7 @@ class Rnn(object):
 		return text
 	#Lambda Functions - End
 
-	def __init__(self, train_x_file = "train_features.csv", train_y_file = "train_labels.csv"):
-		dataX = pd.read_csv(self.getAbsFilePath("data/" + train_x_file))
-		dataY = pd.read_csv(self.getAbsFilePath("data/" + train_y_file))
-		self.total_data = dataX
-		self.total_data['labels'] = dataY['labels']
+	def __init__(self, X_tr, y_tr, X_test, y_test, number_of_trees=500, model_filename = 'Rnn.sav'):
+		self.X_tr, self.y_tr, self.X_test, self.y_test = X_tr, y_tr, X_test, y_test
+		self.model_filename = "../model/" + model_filename
+		self.model = None
