@@ -29,11 +29,14 @@ def main():
         elif embedding=="d2vec":
             dataCleaning.generateDoc2VecEmbedding(vector_size=outputColumnCount, window=wordsWindowSize, epochs=epochCount, min_count=minIgnoreCount)
         dataCleaning.save()
+  
     (X_tr,y_tr), (X_test,y_test) = dataCleaning.getTrainTestSplit(embedding = embedding)
     #Random Forest
-    totalNoOfLebels = len(dataCleaning.lebels)
+    totalNoOfLebels = len(dataCleaning.lebels)  #Not Needed
     model = RandomForest(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-    model.savePrediction("test_features.csv")
+    model.trainAndSaveModel()
+    model.restoreModel()
+    model.savePrediction(dataCleaning.X_pred)
 
 # Using the special variable  
 # __name__ 

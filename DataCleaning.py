@@ -21,8 +21,10 @@ import os
 import random
 import math
 import string
+from Utils import Utils
 
 class DataCleaning(object):
+	#Testing data embedding is also stored in here, as we are using same model for traing
 	#Lambda Functions - Start
 	def cleanString(self, text: str)-> str:
 		#remove punctuation
@@ -39,16 +41,13 @@ class DataCleaning(object):
 		return text
 	#Lambda Functions - End
 
-	def __init__(self, train_x_file = "train_features.csv", train_y_file = "train_labels.csv"):
-		dataX = pd.read_csv(self.getAbsFilePath(train_x_file), index_col=0)
-		dataY = pd.read_csv(self.getAbsFilePath(train_y_file), index_col=0)
+	def __init__(self, train_x_file = "train_features.csv", train_y_file = "train_labels.csv", test_x_file = "test_features.csv"):
+		dataX = pd.read_csv(Utils.getAbsFilePath(train_x_file), index_col=0)
 		self.total_data = dataX
+		dataY = pd.read_csv(Utils.getAbsFilePath(train_y_file), index_col=0)
 		self.total_data['labels'] = dataY['labels']
 		self.lebels = set(dataY['labels'])
-
-	def getAbsFilePath(self, file_name) -> str:
-		script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-		return os.path.join(script_dir, "data/" + file_name)
+		self.X_pred = pd.read_csv(Utils.getAbsFilePath(test_x_file), index_col=0)
 
 	def upDownScale(self, ratio = 10) -> None:
 		#Upscale data with lowest frequency or upscale data with highest frequency
@@ -82,20 +81,23 @@ class DataCleaning(object):
 
 	def clean(self, word_len = 1) -> None:
 		self.total_data['dna'] = self.total_data['dna'].apply(lambda x: self.cleanString(x))
+		self.X_pred['dna'] = self.X_pred['dna'].apply(lambda x: self.cleanString(x))
 		return
 
 	def preprocess(self, word_len = 4) -> None:
 		# Y don't need to be preprocessed because it is already set to numeric values
 		self.total_data['dna'] = self.total_data['dna'].apply(lambda x: self.splitWords(x, word_len))
+		self.X_pred['dna'] = self.X_pred['dna'].apply(lambda x: self.splitWords(x, word_len))
 		return
 
-	def save(self, file_name = "input_data.csv") -> None:
-		self.total_data.to_csv(self.getAbsFilePath("data/" + file_name))
+	def save(self, file_name = "input_data.csv", x_test_file_name = "x_test.csv") -> None:
+		self.total_data.to_csv(Utils.getAbsFilePath(file_name))
+		self.X_pred.to_csv(Utils.getAbsFilePath(x_test_file_name))
 
 	def generateSentenceEmbedding(self) -> None:
 		#sbert
 		model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
-
+		#For Training Data
 		for index, row in self.total_data.iterrows():
 			try:
 				embedding = model.encode(self.total_data.at[index, 'dna'])
@@ -103,6 +105,16 @@ class DataCleaning(object):
 					self.total_data.at[index, "sbert_" + str(embadeIndex).zfill(3)] = val
 			except Exception as err:
 				print(f'Error occurred during updating row of train_dna: {err}')
+		#For Test Data
+		for index, row in self.X_pred.iterrows():
+			try:
+				embedding = model.encode(self.X_pred.at[index, 'dna'])
+				for embadeIndex, val in enumerate(embedding):
+					self.X_pred.at[index, "sbert_" + str(embadeIndex).zfill(3)] = val
+			except Exception as err:
+				print(f'Error occurred during updating row of X_pred_dna: {err}')
+		self.X_pred.drop(["dna"], axis=1, inplace= True, errors='ignore')
+		return
 
 	def generateWord2VecEmbedding(self, vector_size=200, window=20, epochs=100, min_count=2) -> None:
 		# Help is in here- https://github.com/Amrit27k/NLPword2vec/blob/master/word2vec-on-rick-morty-dataset.ipynb
@@ -149,6 +161,7 @@ class DataCleaning(object):
 								   min_count=min_count,
 								   epochs=epochs,
 								   workers=15)
+		#For Train Data
 		for index, row in self.total_data.iterrows():
 			try:
 				embedding = d2v_model.infer_vector(self.total_data.at[index, 'dna'].split())
@@ -156,9 +169,19 @@ class DataCleaning(object):
 					self.total_data.at[index, "d2vec_" + str(embadeIndex).zfill(4)] = val
 			except Exception as err:
 				print(f'Error occurred during updating row of d2vec: {err}')
+		#For Test Data
+		for index, row in self.X_pred.iterrows():
+			try:
+				embedding = d2v_model.infer_vector(self.X_pred.at[index, 'dna'].split())
+				for embadeIndex, val in enumerate(embedding):
+					self.X_pred.at[index, "d2vec_" + str(embadeIndex).zfill(4)] = val
+			except Exception as err:
+				print(f'Error occurred during updating row of d2vec: {err}')
+		self.X_pred.drop(["dna"], axis=1, inplace= True, errors='ignore')
+		return
 
 	def getTrainTestSplit(self, file_name = "input_data.csv", embedding = "sbert"):
-		self.total_data = pd.read_csv(self.getAbsFilePath(file_name), index_col=0)
+		self.total_data = pd.read_csv(Utils.getAbsFilePath(file_name), index_col=0)
 		train, test = train_test_split(self.total_data, test_size=0.2)
 
 		y_tr =  train[['labels']]

@@ -3,27 +3,38 @@ import pandas as pd
 import datetime
 import math
 from sklearn.metrics import precision_score, recall_score
+from Utils import Utils
+import pickle
 
 class RandomForest(object):
-	def getAbsFilePath(self, file_name) -> str:
-		script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
-		return os.path.join(script_dir, "data/"+file_name)
-
-	def __init__(self, X_tr, y_tr, X_test, y_test, number_of_trees=500):
+	def __init__(self, X_tr, y_tr, X_test, y_test, number_of_trees=500, model_filename = 'RandomForest.sav'):
 		self.X_tr, self.y_tr, self.X_test, self.y_test = X_tr, y_tr, X_test, y_test
+		self.model_filename = "../model/" + model_filename
+		self.model = None
+
+	def trainAndSaveModel(self):
 		rf = RandomForestClassifier()
 		self.model = rf.fit(
 					self.X_tr,
 					self.y_tr.values.ravel()
-				) #n_estimators=number_of_trees,n_jobs=15,verbose=2,
-		y_pred = self.model.predict(X_test)
-		precision = precision_score(y_test, y_pred, pos_label='positive', average='micro')
-		recall = recall_score(y_test, y_pred, pos_label='positive', average='micro')
-		print('Precision: {} / Recall: {} / Accuracy: {}'.format(
-			round(precision, 3), round(recall, 3), round((y_pred==y_test['label']).sum()/len(y_pred), 3)))
+				)
+		pickle.dump(self.model, open(Utils.getAbsFilePath(self.model_filename), 'wb'))	#Store Model to File
+		y_pred = self.model.predict(self.X_test)
+		precision = precision_score(self.y_test, y_pred, pos_label='positive', average='micro')
+		recall = recall_score(self.y_test, y_pred, pos_label='positive', average='micro')
+		try:
+			accuracy = round((y_pred==self.y_test['label']).sum()/len(y_pred), 3)
+			print('Precision: {} / Recall: {} / Accuracy: {}'.format(
+					round(precision, 3), round(recall, 3), accuracy))
+		except Exception as e:
+			print(precision, recall, e)
 
-	def savePrediction(self, test_file_name = "test_features.csv", output_file_name = str(math.ceil(datetime.datetime.now().timestamp()))+"submission.csv"):
-		X_pred = pd.read_csv(self.getAbsFilePath(test_file_name), index_col=0)
+	def restoreModel(self):
+		self.model = pickle.load(open(self.model_filename, 'rb'))
+		result = self.model.score(self.X_test, self.y_test)
+		print(result)
+
+	def savePrediction(self, X_pred, embedding = "sbert", output_file_name = str(math.ceil(datetime.datetime.now().timestamp()))+"submission.csv"):
 		y_pred = self.model.predict(X_pred)
-		y_pred.to_csv(self.getAbsFilePath("data/" + output_file_name))
+		y_pred.to_csv(Utils.getAbsFilePath(output_file_name))
 		return y_pred

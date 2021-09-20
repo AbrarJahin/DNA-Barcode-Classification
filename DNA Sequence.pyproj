@@ -35,6 +35,9 @@
     <Compile Include="Rnn.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Utils.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|ContinuumAnalytics|Anaconda38-64" />
