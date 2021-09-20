@@ -1,7 +1,8 @@
 import tensorflow as tf
+import configparser
 from DataCleaning import DataCleaning
 from RandomForest import RandomForest
-import configparser
+from Rnn import Rnn
 
 # Defining main function 
 def main():
@@ -45,8 +46,9 @@ def main():
 
     (X_tr,y_tr), (X_test,y_test) = dataCleaning.getTrainTestSplit(embedding = embedding)
     X_pred = dataCleaning.getXTest()
+    totalNoOfLebels = len(dataCleaning.lebels)  #Not Needed
+
     if trainingModel == "RndomForest": #Random Forest
-        totalNoOfLebels = len(dataCleaning.lebels)  #Not Needed
         model = RandomForest(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
         if not isTrainingDone:
             model.trainAndSaveModel()
@@ -54,6 +56,28 @@ def main():
         model.savePrediction(X_pred)
     elif trainingModel == "RNN": #RNN
         model = Rnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
+        if not isTrainingDone:
+            model.trainAndSaveModel()
+        model.restoreModel()
+        model.savePrediction(X_pred)
+    elif trainingModel == "CNN": #CNN
+        model = Cnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
+        if not isTrainingDone:
+            model.trainAndSaveModel()
+        model.restoreModel()
+        model.savePrediction(X_pred)
+    elif trainingModel == "LSTM": #LSTM
+        model = Cnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
+        if not isTrainingDone:
+            model.trainAndSaveModel()
+        model.restoreModel()
+        model.savePrediction(X_pred)
+    elif trainingModel == "BiLSTM": #BiLSTM
+        model = Cnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
+        if not isTrainingDone:
+            model.trainAndSaveModel()
+        model.restoreModel()
+        model.savePrediction(X_pred)
 
 # Using the special variable  
 # __name__ 

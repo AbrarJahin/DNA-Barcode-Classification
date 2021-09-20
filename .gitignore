@@ -43,7 +43,7 @@ nodeLanguageServer/**
 nodeLanguageServer.*/**
 dist/**
 
-data/input_data.csv
-data/x_test.csv
+data/input_data*.csv
+data/x_test*.csv
 .env
 model
