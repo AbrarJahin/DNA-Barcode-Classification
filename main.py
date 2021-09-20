@@ -3,6 +3,7 @@ import configparser
 from DataCleaning import DataCleaning
 from RandomForest import RandomForest
 from Rnn import Rnn
+from FFNet import FFNet
 
 # Defining main function 
 def main():
@@ -29,7 +30,7 @@ def main():
         epochCount = 200
         minIgnoreCount = 2
         isTrainingDone = False
-        trainingModel = "RndomForest" # "RNN", "CNN"
+        trainingModel = "RndomForest" # "RNN", "CNN", ......
     #Start Embedding
     dataCleaning = DataCleaning()
     if not isEmbiddingDone:
@@ -48,36 +49,34 @@ def main():
     X_pred = dataCleaning.getXTest()
     totalNoOfLebels = len(dataCleaning.lebels)  #Not Needed
 
+    #Resnet - need to implement, CNN need to be implemented
+    model = None
     if trainingModel == "RndomForest": #Random Forest
         model = RandomForest(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-        if not isTrainingDone:
-            model.trainAndSaveModel()
-        model.restoreModel()
-        model.savePrediction(X_pred)
-    elif trainingModel == "RNN": #RNN
-        model = Rnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-        if not isTrainingDone:
-            model.trainAndSaveModel()
-        model.restoreModel()
-        model.savePrediction(X_pred)
+        #if not isTrainingDone:
+        #    model.trainAndSaveModel()
+        #model.restoreModel()
+        #model.savePrediction(X_pred)
+    
     elif trainingModel == "CNN": #CNN
         model = Cnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-        if not isTrainingDone:
-            model.trainAndSaveModel()
-        model.restoreModel()
-        model.savePrediction(X_pred)
+    
+    elif trainingModel == "RNN": #RNN
+        model = Rnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
+        
     elif trainingModel == "LSTM": #LSTM
-        model = Cnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-        if not isTrainingDone:
-            model.trainAndSaveModel()
-        model.restoreModel()
-        model.savePrediction(X_pred)
+        model = Lstm(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
+        
     elif trainingModel == "BiLSTM": #BiLSTM
-        model = Cnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-        if not isTrainingDone:
-            model.trainAndSaveModel()
+        model = BiLstm(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
+    elif trainingModel == "FFNet": #BiLSTM
+        model = FFNet(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
+
+    if not isTrainingDone:
+        model.trainAndSaveModel()
+    else:
         model.restoreModel()
-        model.savePrediction(X_pred)
+    model.savePrediction(X_pred)
 
 # Using the special variable  
 # __name__ 

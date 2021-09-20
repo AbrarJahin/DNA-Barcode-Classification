@@ -38,11 +38,13 @@ class DataCleaning(object):
 	def splitWords(self, dna_seq: str, word_len: int)-> str:
 		strArray = [dna_seq[index : index + word_len] for index in range(0, len(dna_seq), word_len)]
 		text = " ".join(strArray)
+		self.maxWordLen = max(self.maxWordLen, len(strArray))
 		return text
 	#Lambda Functions - End
 
 	def __init__(self, train_x_file = "train_features.csv", train_y_file = "train_labels.csv", test_x_file = "test_features.csv"):
 		dataX = pd.read_csv(Utils.getAbsFilePath(train_x_file), index_col=0)
+		self.maxWordLen = 0
 		self.total_data = dataX
 		dataY = pd.read_csv(Utils.getAbsFilePath(train_y_file), index_col=0)
 		self.total_data['labels'] = dataY['labels']
@@ -88,6 +90,7 @@ class DataCleaning(object):
 		# Y don't need to be preprocessed because it is already set to numeric values
 		self.total_data['dna'] = self.total_data['dna'].apply(lambda x: self.splitWords(x, word_len))
 		self.X_pred['dna'] = self.X_pred['dna'].apply(lambda x: self.splitWords(x, word_len))
+		print("Min 2D dimention of embedding", self.maxWordLen)
 		return
 
 	def save(self, file_name = "input_data.csv", x_test_file_name = "x_test.csv") -> None:

@@ -7,3 +7,9 @@ class Utils(object):
 	def getAbsFilePath(file_name) -> str:
 		script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
 		return os.path.join(script_dir, "data/"+file_name)
+	
+	def getAbsFolderPath(file_name) -> str:
+		location = Utils.getAbsFilePath(file_name)
+		if not os.path.exists(location):
+			os.makedirs(location)
+		return location
