@@ -26,7 +26,7 @@ def main():
         wordsWindowSize = 50
         epochCount = 200
         minIgnoreCount = 2
-        isTrainingDone
+        isTrainingDone = False
     #Start Embedding
     dataCleaning = DataCleaning()
     if not isEmbiddingDone:
