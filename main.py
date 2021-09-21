@@ -21,6 +21,7 @@ def main():
         minIgnoreCount = int(config.get('Default','minIgnoreCount'))
         isTrainingDone = config.get('Default','isTrainingDone') == 'True'
         trainingModel = config.get('Default','trainingModel')
+        batchSize = int(config.get('Default','batchSize'))
     except Exception as e:
         print(e, "=> Default valus set from code")
         isEmbiddingDone = False
@@ -28,10 +29,11 @@ def main():
         perWordLength = 5
         outputColumnCount = 784 #28*28 for 2D CNN
         wordsWindowSize = 50
-        epochCount = 200
+        epochCount = 1000
         minIgnoreCount = 2
         isTrainingDone = False
         trainingModel = "CNN" # "RNN", "CNN", ......
+        batchSize = 512
     #Start Embedding
     dataCleaning = DataCleaning()
     if not isEmbiddingDone:
@@ -59,7 +61,7 @@ def main():
         #model.restoreModel()
         #model.savePrediction(X_pred)
     elif trainingModel == "CNN": #CNN
-        model = Cnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
+        model = Cnn(X_tr, y_tr, X_test, y_test, epochs = epochCount, batch_size = batchSize)
     elif trainingModel == "RNN": #RNN
         model = Rnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
     elif trainingModel == "LSTM": #LSTM
