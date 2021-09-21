@@ -14,7 +14,7 @@ import numpy as np
 import keras
 #from resnet import Residual
 import math
-from keras.utils import to_categorical
+from tensorflow.keras.utils import to_categorical
 
 class Cnn(object):
 	#Lambda Functions - Start
