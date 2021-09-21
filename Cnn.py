@@ -11,6 +11,7 @@ import pandas as pd
 import datetime
 import math
 import numpy as np
+import keras
 
 class Cnn(object):
 	#Lambda Functions - Start
@@ -59,13 +60,18 @@ class Cnn(object):
 		# Compile the model
 		self.model.compile(
 				loss='categorical_crossentropy',#binary_crossentropy
-				#optimizer='adam',
-				optimizer=SGD(momentum=0.5, decay=0.0004, metrics=['accuracy']),
+				optimizer=tf.keras.optimizers.Adam(
+						learning_rate=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-07, amsgrad=False,
+						name='Adam Optimizer'
+					),
+				#optimizer=tf.keras.optimizers.SGD(learning_rate=0.00001, momentum=0.005, decay=0.0004),
 				metrics=['accuracy', self.precision_m, self.recall_m]
 			)
-		print(model.summary())
+		print(self.model.summary())
 
 	def trainAndSaveModel(self):
+		# self.X_tr.shape => (14834, 784)
+		# self.y_tr.shape => (14834, 1)
 		# Fit the RNN - Training
 		history = self.model.fit(
 						self.X_tr,

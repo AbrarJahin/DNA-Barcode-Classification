@@ -13,3 +13,6 @@ All configurations are saved in .env file. So, before every run, you need to twe
     tensorboard --logdir logs
 
 Then go to the browser on the provided url (with port).
+
+    scp ajahin@jamuna.cs.iupui.edu:/home/ajahin/contest/data/x_test.csv ./x_test.csv
+    scp ajahin@jamuna.cs.iupui.edu:/home/ajahin/contest/data/input_data.csv ./input_data.csv
