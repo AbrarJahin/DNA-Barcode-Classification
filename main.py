@@ -24,7 +24,7 @@ def main():
         batchSize = int(config.get('Default','batchSize'))
     except Exception as e:
         print(e, "=> Default valus set from code")
-        isEmbiddingDone = False
+        isEmbiddingDone = True
         embedding = "d2vec"
         perWordLength = 5
         outputColumnCount = 784 #28*28 for 2D CNN
