@@ -52,11 +52,12 @@ class Cnn(object):
 					padding='same'
 				),
 			tf.keras.layers.Dropout(0.2),
-			tf.keras.layers.Conv2D(32, (3, 3), activation='relu', padding='valid'),
+			tf.keras.layers.Conv2D(filters=math.ceil(self.y_tr.shape[1]*1.1), kernel_size=(3, 3), activation='relu', padding='valid', name='conv_1'),
 			tf.keras.layers.MaxPooling2D((2, 2)),
-			tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+			tf.keras.layers.Conv2D(filters=math.ceil(self.y_tr.shape[1]/8), kernel_size=(3, 3), activation='relu'),
 			tf.keras.layers.MaxPooling2D((2, 2)),
-			tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+			tf.keras.layers.Conv2D(filters=math.ceil(self.y_tr.shape[1]/64), kernel_size=(3, 3), activation='relu'),
+			tf.keras.layers.MaxPooling2D((2, 2)),
 			tf.keras.layers.Flatten(),
 			tf.keras.layers.Dense(self.y_tr.shape[1], activation='softmax')
 		])
