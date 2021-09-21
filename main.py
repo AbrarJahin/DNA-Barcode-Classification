@@ -4,6 +4,7 @@ from DataCleaning import DataCleaning
 from RandomForest import RandomForest
 from Rnn import Rnn
 from FFNet import FFNet
+from Cnn import Cnn
 
 # Defining main function 
 def main():
@@ -57,16 +58,12 @@ def main():
         #    model.trainAndSaveModel()
         #model.restoreModel()
         #model.savePrediction(X_pred)
-    
     elif trainingModel == "CNN": #CNN
         model = Cnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-    
     elif trainingModel == "RNN": #RNN
         model = Rnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-        
     elif trainingModel == "LSTM": #LSTM
         model = Lstm(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-        
     elif trainingModel == "BiLSTM": #BiLSTM
         model = BiLstm(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
     elif trainingModel == "FFNet": #BiLSTM

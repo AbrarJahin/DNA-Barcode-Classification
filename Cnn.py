@@ -34,17 +34,21 @@ class Cnn(object):
 		self.model_filename = "../model/" + model_filename
 		#Define The Model
 		self.model = tf.keras.Sequential([
-			#tf.keras.layers.Embedding(vocab_size, embedding_dim, input_length=max_length),
-			#tf.keras.layers.Embedding(
-			#		input_dim = self.X_tr.shape[0],
-			#		output_dim = embedding_column_count,
-			#		input_length=self.X_tr.shape[1]
-			#	),
-			tf.keras.layers.Conv2D(filters=32, kernel_size=(3, 3), activation='relu', input_shape=(32, 32, 3)),
+			tf.keras.layers.Conv2D(
+					filters=32,
+					kernel_size=(3, 3),
+					activation='relu',
+					input_shape=(28, 28, 3),
+					padding='same'
+				),
+			tf.keras.layers.Dropout(0.2),
+			tf.keras.layers.Conv2D(32, (3, 3), activation='relu', padding='valid'),
 			tf.keras.layers.MaxPooling2D((2, 2)),
 			tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
 			tf.keras.layers.MaxPooling2D((2, 2)),
-			tf.keras.layers.Conv2D(64, (3, 3), activation='relu')
+			tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+			tf.keras.layers.Flatten(),
+			tf.keras.layers.Dense(10, activation='softmax')
 		])
 		#Define logger
 		self.logger = keras.callbacks.TensorBoard(
@@ -54,8 +58,9 @@ class Cnn(object):
 		)
 		# Compile the model
 		self.model.compile(
-				loss='binary_crossentropy',
-				optimizer='adam',
+				loss='categorical_crossentropy',#binary_crossentropy
+				#optimizer='adam',
+				optimizer=SGD(momentum=0.5, decay=0.0004, metrics=['accuracy']),
 				metrics=['accuracy', self.precision_m, self.recall_m]
 			)
 		print(model.summary())
