@@ -5,6 +5,7 @@ from RandomForest import RandomForest
 from Rnn import Rnn
 from FFNet import FFNet
 from Cnn import Cnn
+from Cnn2D import Cnn2D
 
 # Defining main function 
 def main():
@@ -49,7 +50,7 @@ def main():
         dataCleaning.save()
 
     (X_tr,y_tr), (X_test,y_test) = dataCleaning.getTrainTestSplit(embedding = embedding)
-    X_pred = dataCleaning.getXTest()
+    X_pred = dataCleaning.getXTest(embedding = embedding)
     totalNoOfLebels = len(dataCleaning.lebels)  #Not Needed
 
     #Resnet - need to implement, CNN need to be implemented
@@ -61,7 +62,7 @@ def main():
         #model.restoreModel()
         #model.savePrediction(X_pred)
     elif trainingModel == "CNN": #CNN
-        model = Cnn(X_tr, y_tr, X_test, y_test, epochs = epochCount, batch_size = batchSize)
+        model = Cnn2D(X_tr, y_tr, X_test, y_test, epochs = epochCount, batch_size = batchSize)
     elif trainingModel == "RNN": #RNN
         model = Rnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
     elif trainingModel == "LSTM": #LSTM

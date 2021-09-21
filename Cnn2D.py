@@ -16,7 +16,7 @@ import keras
 import math
 from tensorflow.keras.utils import to_categorical
 
-class Cnn(object):
+class Cnn2D(object):
 	#Lambda Functions - Start
 	def recall_m(self, y_true, y_pred):
 		true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
@@ -49,9 +49,9 @@ class Cnn(object):
 
 		#Define The Model
 		self.model = tf.keras.Sequential([
-			tf.keras.layers.Conv1D(
+			tf.keras.layers.Conv2D(
 					filters=math.ceil(self.y_tr.shape[1]/10),
-					kernel_size=(3),
+					kernel_size=(3, 3),
 					activation='relu',
 					input_shape=(self.dimention, self.dimention, 1),
 					padding='same'
@@ -160,7 +160,7 @@ class Cnn(object):
 			print(e)
 
 	def savePrediction(self, X_pred, embedding = "sbert", output_file_name = str(math.ceil(datetime.datetime.now().timestamp()))+"_submission.csv"):
-		x_pred_reshaped = self.X_pred.values.reshape(X_pred.values.shape[0], self.dimention, self.dimention, 1)
+		x_pred_reshaped = X_pred.values.reshape(X_pred.values.shape[0], self.dimention, self.dimention, 1)
 		y_pred = self.model.predict(x_pred_reshaped)
 		df = pd.DataFrame({'id':list(X_pred.index),'labels': list(y_pred)})
 		df = df.set_index(['id'])

@@ -26,6 +26,9 @@
     <Compile Include="Cnn.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Cnn2D.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DataCleaning.py">
       <SubType>Code</SubType>
     </Compile>
