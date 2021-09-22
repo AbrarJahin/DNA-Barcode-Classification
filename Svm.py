@@ -48,6 +48,7 @@ class Svm(object):
 		self.model = None
 
 	def trainAndSaveModel(self):
+		#Need to update polinomial kernel degree from 3 to upper
 		self.model = svm.SVC(decision_function_shape="ovo").fit(self.X_tr, self.y_tr.values.ravel())
 		self.model.predict(self.X_test)
 		print("Score -", self.model.score(self.X_test, self.y_test))
