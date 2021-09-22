@@ -5,6 +5,9 @@ from RandomForest import RandomForest
 from Rnn import Rnn
 from FFNet import FFNet
 from Cnn import Cnn
+from Cnn2D import Cnn2D
+from BiLstm import BiLstm
+from Svm import Svm
 
 # Defining main function 
 def main():
@@ -32,7 +35,7 @@ def main():
         epochCount = 1000
         minIgnoreCount = 2
         isTrainingDone = False
-        trainingModel = "CNN" # "RNN", "CNN", ......
+        trainingModel = "SVM" # "RNN", "CNN", ......
         batchSize = 512
     #Start Embedding
     dataCleaning = DataCleaning()
@@ -49,7 +52,7 @@ def main():
         dataCleaning.save()
 
     (X_tr,y_tr), (X_test,y_test) = dataCleaning.getTrainTestSplit(embedding = embedding)
-    X_pred = dataCleaning.getXTest()
+    X_pred = dataCleaning.getXTest(embedding = embedding)
     totalNoOfLebels = len(dataCleaning.lebels)  #Not Needed
 
     #Resnet - need to implement, CNN need to be implemented
@@ -62,14 +65,18 @@ def main():
         #model.savePrediction(X_pred)
     elif trainingModel == "CNN": #CNN
         model = Cnn(X_tr, y_tr, X_test, y_test, epochs = epochCount, batch_size = batchSize)
+    elif trainingModel == "CNN2D": #CNN
+        model = Cnn2D(X_tr, y_tr, X_test, y_test, epochs = epochCount, batch_size = batchSize)
+    elif trainingModel == "SVM": #SVM
+        model = Svm(X_tr, y_tr, X_test, y_test)
+    elif trainingModel == "LSTM": #LSTM
+        model = Lstm(X_tr, y_tr, X_test, y_test, epochs = epochCount, batch_size = batchSize)
+    elif trainingModel == "BiLSTM": #BiLSTM
+        model = BiLstm(X_tr, y_tr, X_test, y_test, epochs = epochCount, batch_size = batchSize)
+    elif trainingModel == "FFNet": #FFNet
+        model = FFNet(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
     elif trainingModel == "RNN": #RNN
         model = Rnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-    elif trainingModel == "LSTM": #LSTM
-        model = Lstm(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-    elif trainingModel == "BiLSTM": #BiLSTM
-        model = BiLstm(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-    elif trainingModel == "FFNet": #BiLSTM
-        model = FFNet(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
 
     if not isTrainingDone:
         model.trainAndSaveModel()

@@ -1,5 +1,5 @@
 import keras.backend as K
-from keras.layers import Dense, Embedding, LSTM, Conv1D, MaxPooling1D, Flatten, Reshape, MaxPool1D, BatchNormalization, Dropout, Input
+from keras.layers import Dense, Embedding, LSTM, Conv1D, MaxPooling1D, Flatten, Reshape, MaxPool1D, BatchNormalization, Dropout, Input, Masking, Bidirectional
 from keras.models import Sequential
 from Utils import Utils
 import pickle
@@ -18,7 +18,7 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras import regularizers
 import sklearn.metrics as metrics
 
-class Cnn(object):
+class BiLstm(object):
 	#Lambda Functions - Start
 	def recall_m(self, y_true, y_pred):
 		true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
@@ -33,44 +33,31 @@ class Cnn(object):
 		return precision
 	#Lambda Functions - End
 
-	def __init__(self, X_tr, y_tr, X_test, y_test, model_filename = 'Cnn1D.sav', epochs = 10, batch_size = 512):
+	def __init__(self, X_tr, y_tr, X_test, y_test, model_filename = 'Lstm.sav', epochs = 10, batch_size = 512):
 		self.epochs = epochs
 		self.batch_size = batch_size
+		self.dimention = int(math.sqrt(X_tr.shape[1]))
 
 		self.y_tr = to_categorical(y_tr['labels'].values, dtype = "uint8")
 		self.y_test = to_categorical(y_test['labels'].values, dtype = "uint8")
 
-		self.X_tr = X_tr.values.reshape(X_tr.values.shape[0], X_tr.values.shape[1], 1)
-		self.X_test = X_test.values.reshape(X_test.values.shape[0], X_test.values.shape[1], 1)
+		self.X_tr = X_tr.values.reshape(X_tr.values.shape[0], self.dimention, self.dimention)
+		self.X_test = X_test.values.reshape(X_test.values.shape[0], self.dimention, self.dimention)
 
 		self.model_filename = "../model/" + model_filename
 
-		#self.y_tr.shape[1] = 1214
-
 		#Define The Model
 		model = tf.keras.Sequential()
-		#model.add(Conv1D(filters=256, kernel_size=3, strides=1, activation='relu', input_shape=(self.X_tr.shape[1],1), name='block1_conv1'))
-		model.add(Input(shape=(self.X_tr.shape[1],1), batch_size=None, name="Input Layer"))
+		model.add(Input(shape=(self.dimention, self.dimention), batch_size=None, name="Input Layer", dtype='float32'))
 		################################################################################
-		model.add(Conv1D(filters=256, kernel_size=3, strides=1, activation='relu', name='block1_conv1'))
-		model.add(MaxPool1D(pool_size=2, name='block1_pool1'))
-		model.add(BatchNormalization(momentum=0.9, epsilon=1e-5, axis=1))
+		model.add(Masking(mask_value =0))
+		model.add(Bidirectional(LSTM(300, activation='tanh', return_sequences = True, dropout=0.4)))
+		model.add(Bidirectional(LSTM(300, activation='tanh', return_sequences = True, dropout=0.4), name="utter"))
+		model.add(TimeDistributed(Dense(self.classes,activation='softmax')))
 
-		model.add(Conv1D(filters=256, kernel_size=3, strides=1, activation='relu', name='block1_conv2'))
-		model.add(MaxPool1D(pool_size=2, name='block1_pool2'))
-
-		model.add(Flatten(name='block1_flat1'))
-		model.add(Dropout(0.1, name='block1_drop1'))
-
-		model.add(Dense(512, activation='relu', name='block2_dense2'))
-		#model.add(MaxoutDense(512, nb_feature=4, name="block2_maxout2"))
-		model.add(Dropout(0.1, name='block2_drop2'))
-
-		model.add(Dense(512, activation='relu', name='block2_dense3', input_dim=5,
-			kernel_initializer='ones',
-			kernel_regularizer=tf.keras.regularizers.L1(0.01),
-			activity_regularizer=tf.keras.regularizers.L2(0.01)))
-
+		#model.add(LSTM(62, return_sequences=True))
+		#model.add(Dense(22, activation='softmax'))
+		#model.add(Flatten())
 		################################################################################
 		model.add(Dense(
 					units = self.y_tr.shape[1],

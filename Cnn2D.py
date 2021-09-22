@@ -1,5 +1,5 @@
 import keras.backend as K
-from keras.layers import Dense, Embedding, LSTM, Conv1D, MaxPooling1D, Flatten, Reshape, MaxPool1D, BatchNormalization, Dropout, Input
+from keras.layers import Dense, Embedding, LSTM
 from keras.models import Sequential
 from Utils import Utils
 import pickle
@@ -15,10 +15,8 @@ import keras
 #from resnet import Residual
 import math
 from tensorflow.keras.utils import to_categorical
-from tensorflow.keras import regularizers
-import sklearn.metrics as metrics
 
-class Cnn(object):
+class Cnn2D(object):
 	#Lambda Functions - Start
 	def recall_m(self, y_true, y_pred):
 		true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
@@ -33,57 +31,80 @@ class Cnn(object):
 		return precision
 	#Lambda Functions - End
 
-	def __init__(self, X_tr, y_tr, X_test, y_test, model_filename = 'Cnn1D.sav', epochs = 10, batch_size = 512):
+	def __init__(self, X_tr, y_tr, X_test, y_test, model_filename = 'Cnn2D.sav', epochs = 10, batch_size = 512):
 		self.epochs = epochs
 		self.batch_size = batch_size
+		self.dimention = int(math.sqrt(X_tr.shape[1]))
 
+		#self.X_tr, self.y_tr, self.X_test, self.y_test = X_tr, y_tr, X_test, y_test
+
+		self.X_tr = X_tr.values.reshape(X_tr.values.shape[0], self.dimention, self.dimention, 1)
 		self.y_tr = to_categorical(y_tr['labels'].values, dtype = "uint8")
+		self.X_test = X_test.values.reshape(X_test.values.shape[0], self.dimention, self.dimention, 1)
 		self.y_test = to_categorical(y_test['labels'].values, dtype = "uint8")
-
-		self.X_tr = X_tr.values.reshape(X_tr.values.shape[0], X_tr.values.shape[1], 1)
-		self.X_test = X_test.values.reshape(X_test.values.shape[0], X_test.values.shape[1], 1)
 
 		self.model_filename = "../model/" + model_filename
 
 		#self.y_tr.shape[1] = 1214
 
 		#Define The Model
-		model = tf.keras.Sequential()
-		#model.add(Conv1D(filters=256, kernel_size=3, strides=1, activation='relu', input_shape=(self.X_tr.shape[1],1), name='block1_conv1'))
-		model.add(Input(shape=(self.X_tr.shape[1],1), batch_size=None, name="Input Layer"))
-		################################################################################
-		model.add(Conv1D(filters=256, kernel_size=3, strides=1, activation='relu', name='block1_conv1'))
-		model.add(MaxPool1D(pool_size=2, name='block1_pool1'))
-		model.add(BatchNormalization(momentum=0.9, epsilon=1e-5, axis=1))
+		self.model = tf.keras.Sequential([
+			tf.keras.layers.Conv2D(
+					filters=math.ceil(self.y_tr.shape[1]/10),
+					kernel_size=(3, 3),
+					activation='relu',
+					input_shape=(self.dimention, self.dimention, 1),
+					padding='same'
+				),
+			tf.keras.layers.Dropout(0.1),
+			tf.keras.layers.MaxPooling2D((2, 2)),
 
-		model.add(Conv1D(filters=256, kernel_size=3, strides=1, activation='relu', name='block1_conv2'))
-		model.add(MaxPool1D(pool_size=2, name='block1_pool2'))
+			#Add a Dense Layer by reshaping - Start
+			#UpSampling2D(2)
+			tf.keras.layers.Flatten(),
+			tf.keras.layers.Dense(
+						units = int(math.sqrt(self.dimention)+1) * int(math.sqrt(self.dimention)+1) * 1,
+						activation='softmax'
+					),
+			tf.keras.layers.Reshape((int(math.sqrt(self.dimention)+1), int(math.sqrt(self.dimention)+1), 1)),
+			#Add a Dense Layer by reshaping - End
 
-		model.add(Flatten(name='block1_flat1'))
-		model.add(Dropout(0.1, name='block1_drop1'))
+			tf.keras.layers.Conv2D(
+					filters=math.ceil(math.sqrt(self.y_tr.shape[1]/80)),
+					kernel_size=(3, 3),
+					activation='relu',
+					padding='valid',
+					name='conv_1'
+				),
+			tf.keras.layers.Dropout(0.1),
+			tf.keras.layers.MaxPooling2D((2, 2)),
 
-		model.add(Dense(512, activation='relu', name='block2_dense2'))
-		#model.add(MaxoutDense(512, nb_feature=4, name="block2_maxout2"))
-		model.add(Dropout(0.1, name='block2_drop2'))
+			#tf.keras.layers.Conv2D(
+			#		filters=math.ceil(self.y_tr.shape[1]/80),
+			#		kernel_size=(3, 3),
+			#		activation='relu'
+			#	),
+			#tf.keras.layers.MaxPooling2D((2, 2)),
+			#tf.keras.layers.Conv2D(
+			#		filters=math.ceil(self.y_tr.shape[1]/160),
+			#		kernel_size=(3, 3),
+			#		activation='relu'
+			#	),
+			#tf.keras.layers.MaxPooling2D((2, 2)),
+			tf.keras.layers.Flatten(),
 
-		model.add(Dense(512, activation='relu', name='block2_dense3', input_dim=5,
-			kernel_initializer='ones',
-			kernel_regularizer=tf.keras.regularizers.L1(0.01),
-			activity_regularizer=tf.keras.regularizers.L2(0.01)))
+			tf.keras.layers.Dense(32),
 
-		################################################################################
-		model.add(Dense(
+			tf.keras.layers.Dense(
 					units = self.y_tr.shape[1],
-					activation='softmax',
-					name="predict"
-				))
-		self.model = model
-
+					activation='softmax'
+				)
+		])
 		#Define logger
 		self.logger = keras.callbacks.TensorBoard(
 			log_dir='logs',
 			write_graph=True,
-			histogram_freq=2
+			histogram_freq=5
 		)
 		# Compile the model
 		self.model.compile(
@@ -99,7 +120,6 @@ class Cnn(object):
 				#	),
 				#optimizer=tf.keras.optimizers.SGD(learning_rate=0.00001, momentum=0.005, decay=0.0004),
 				metrics=['accuracy', self.precision_m, self.recall_m]
-				#metrics=[metrics]
 			)
 		print(self.model.summary())
 
