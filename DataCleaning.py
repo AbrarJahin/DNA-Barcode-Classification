@@ -22,6 +22,7 @@ import random
 import math
 import string
 from Utils import Utils
+from sklearn.preprocessing import MultiLabelBinarizer
 
 class DataCleaning(object):
 	#Testing data embedding is also stored in here, as we are using same model for traing
@@ -37,6 +38,7 @@ class DataCleaning(object):
 
 	def splitWords(self, dna_seq: str, word_len: int)-> str:
 		strArray = [dna_seq[index : index + word_len] for index in range(0, len(dna_seq), word_len)]
+		self.totalUniqueWords.update(strArray)
 		text = " ".join(strArray)
 		self.maxWordLen = max(self.maxWordLen, len(strArray))
 		return text
@@ -50,6 +52,7 @@ class DataCleaning(object):
 		self.total_data['labels'] = dataY['labels']
 		self.lebels = set(dataY['labels'])
 		self.X_pred = pd.read_csv(Utils.getAbsFilePath(test_x_file), index_col=0)
+		self.totalUniqueWords = set()
 
 	def upDownScale(self, ratio = 10) -> None:
 		#Upscale data with lowest frequency or upscale data with highest frequency
@@ -183,6 +186,34 @@ class DataCleaning(object):
 		self.X_pred.drop(["dna"], axis=1, inplace= True, errors='ignore')
 		return
 
+	def generateOneHotEncoding(self, vector_size=200, window=20, epochs=100, min_count=2) -> None:
+		mlb = MultiLabelBinarizer()
+		#self.totalUniqueWords	#=> all columns for words
+		for word in self.totalUniqueWords:
+			self.total_data['onehot_' + word] = 0
+			self.X_pred['onehot_' + word] = 0
+
+		#For Train Data
+		df = pd.DataFrame(mlb.fit_transform([x.split(' ') for x in self.total_data["dna"]]),columns=mlb.classes_)
+		#df.to_csv(Utils.getAbsFilePath("one_hot.csv"))
+		for index, row in self.total_data.iterrows():
+			try:
+				for word in df.keys():
+					self.total_data.at[index, "onehot_" + word] = df.at[index, word]
+			except Exception as err:
+				print(f'Error occurred during updating row of onehot_train: {err}')
+
+		#For Test Data
+		df = pd.DataFrame(mlb.fit_transform([x.split(' ') for x in self.X_pred["dna"]]),columns=mlb.classes_)
+		for index, row in self.X_pred.iterrows():
+			try:
+				for word in df.keys():
+					self.X_pred.at[index, "onehot_" + word] = df.at[index, word]
+			except Exception as err:
+				print(f'Error occurred during updating row of onehot_pred: {err}')
+		self.X_pred.drop(["dna"], axis=1, inplace= True, errors='ignore')
+		return
+
 	def getTrainTestSplit(self, file_name = "input_data.csv", embedding = "sbert"):
 		self.total_data = pd.read_csv(Utils.getAbsFilePath(file_name), index_col=0)
 		train, test = train_test_split(self.total_data, test_size=0.2)
@@ -198,6 +229,9 @@ class DataCleaning(object):
 		elif embedding == "d2vec":
 			X_tr = train[[s for s in train.columns if "d2vec_" in s]]
 			X_test = test[[s for s in test.columns if "d2vec_" in s]]
+		elif embedding == "onehot":
+			X_tr = train[[s for s in train.columns if "onehot_" in s]]
+			X_test = test[[s for s in test.columns if "onehot_" in s]]
 		else:
 			X_tr = train[['dna']]
 			X_test = test[['dna']]
@@ -211,6 +245,8 @@ class DataCleaning(object):
 			X_pred = self.X_pred[[s for s in self.X_pred.columns if "w2vec_" in s]]
 		elif embedding == "d2vec":
 			X_pred = self.X_pred[[s for s in self.X_pred.columns if "d2vec_" in s]]
+		elif embedding == "onehot":
+			X_pred = self.X_pred[[s for s in self.X_pred.columns if "onehot_" in s]]
 		else:
 			X_pred = self.X_pred[['dna']]
 		return X_pred

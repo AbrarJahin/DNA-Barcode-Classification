@@ -37,6 +37,9 @@ class Cnn(object):
 		self.epochs = epochs
 		self.batch_size = batch_size
 
+		#https://medium.com/jatana/report-on-text-classification-using-cnn-rnn-han-f0e887214d5f
+		# For CNN, RNN and HAN
+
 		self.y_tr = to_categorical(y_tr['labels'].values, dtype = "uint8")
 		self.y_test = to_categorical(y_test['labels'].values, dtype = "uint8")
 

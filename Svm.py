@@ -44,6 +44,7 @@ class Svm(object):
 
 		#self.y_tr.shape[1] = 1214
 
+		#https://www.baeldung.com/cs/svm-multiclass-classification
 		#Define The Model
 		self.model = None
 

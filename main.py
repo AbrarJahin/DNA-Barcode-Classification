@@ -25,6 +25,7 @@ def main():
         isTrainingDone = config.get('Default','isTrainingDone') == 'True'
         trainingModel = config.get('Default','trainingModel')
         batchSize = int(config.get('Default','batchSize'))
+        ifUpscaleNeeded = config.get('Default','ifUpscaleNeeded') == 'True'
     except Exception as e:
         print(e, "=> Default valus set from code")
         isEmbiddingDone = True
@@ -35,12 +36,13 @@ def main():
         epochCount = 1000
         minIgnoreCount = 2
         isTrainingDone = False
-        trainingModel = "SVM" # "RNN", "CNN", ......
+        trainingModel = "CNN" # "RNN", "CNN", ......
         batchSize = 512
+        ifUpscaleNeeded = True
     #Start Embedding
     dataCleaning = DataCleaning()
     if not isEmbiddingDone:
-        dataCleaning.upDownScale()
+        if ifUpscaleNeeded: dataCleaning.upDownScale()
         dataCleaning.clean()
         dataCleaning.preprocess(perWordLength)
         if embedding=="sbert":
@@ -49,6 +51,8 @@ def main():
             dataCleaning.generateWord2VecEmbedding(vector_size=outputColumnCount, window=wordsWindowSize, epochs=epochCount, min_count=minIgnoreCount)
         elif embedding=="d2vec":
             dataCleaning.generateDoc2VecEmbedding(vector_size=outputColumnCount, window=wordsWindowSize, epochs=epochCount, min_count=minIgnoreCount)
+        elif embedding == "onehot":
+            dataCleaning.generateOneHotEncoding(vector_size=outputColumnCount, window=wordsWindowSize, epochs=epochCount, min_count=minIgnoreCount)
         dataCleaning.save()
 
     (X_tr,y_tr), (X_test,y_test) = dataCleaning.getTrainTestSplit(embedding = embedding)
