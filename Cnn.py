@@ -55,21 +55,21 @@ class Cnn(object):
 		#model.add(Conv1D(filters=256, kernel_size=3, strides=1, activation='relu', input_shape=(self.X_tr.shape[1],1), name='block1_conv1'))
 		model.add(Input(shape=(self.X_tr.shape[1],1), batch_size=None, name="Input Layer"))
 		################################################################################
-		model.add(Conv1D(filters=256, kernel_size=3, strides=1, activation='relu', name='block1_conv1'))
+		model.add(Conv1D(filters=32, kernel_size=3, strides=1, activation='relu', name='block1_conv1'))
 		model.add(MaxPool1D(pool_size=2, name='block1_pool1'))
 		model.add(BatchNormalization(momentum=0.9, epsilon=1e-5, axis=1))
 
-		model.add(Conv1D(filters=256, kernel_size=3, strides=1, activation='relu', name='block1_conv2'))
+		model.add(Conv1D(filters=24, kernel_size=3, strides=1, activation='relu', name='block1_conv2'))
 		model.add(MaxPool1D(pool_size=2, name='block1_pool2'))
 
 		model.add(Flatten(name='block1_flat1'))
 		model.add(Dropout(0.1, name='block1_drop1'))
 
-		model.add(Dense(512, activation='relu', name='block2_dense2'))
+		model.add(Dense(64, activation='relu', name='block2_dense2'))
 		#model.add(MaxoutDense(512, nb_feature=4, name="block2_maxout2"))
 		model.add(Dropout(0.1, name='block2_drop2'))
 
-		model.add(Dense(512, activation='relu', name='block2_dense3', input_dim=5,
+		model.add(Dense(16, activation='relu', name='block2_dense3', input_dim=5,
 			kernel_initializer='ones',
 			kernel_regularizer=tf.keras.regularizers.L1(0.01),
 			activity_regularizer=tf.keras.regularizers.L2(0.01)))

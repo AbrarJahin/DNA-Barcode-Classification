@@ -28,9 +28,9 @@ def main():
         ifUpscaleNeeded = config.get('Default','ifUpscaleNeeded') == 'True'
     except Exception as e:
         print(e, "=> Default valus set from code")
-        isEmbiddingDone = True
-        embedding = "d2vec"
-        perWordLength = 5
+        isEmbiddingDone = False
+        embedding = "onehot"
+        perWordLength = 4
         outputColumnCount = 784 #28*28 for 2D CNN
         wordsWindowSize = 50
         epochCount = 1000
