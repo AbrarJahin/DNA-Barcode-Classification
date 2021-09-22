@@ -31,7 +31,7 @@ class Cnn2D(object):
 		return precision
 	#Lambda Functions - End
 
-	def __init__(self, X_tr, y_tr, X_test, y_test, model_filename = 'Rnn.sav', epochs = 10, batch_size = 512):
+	def __init__(self, X_tr, y_tr, X_test, y_test, model_filename = 'Cnn2D.sav', epochs = 10, batch_size = 512):
 		self.epochs = epochs
 		self.batch_size = batch_size
 		self.dimention = int(math.sqrt(X_tr.shape[1]))

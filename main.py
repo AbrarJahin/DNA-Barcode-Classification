@@ -62,6 +62,8 @@ def main():
         #model.restoreModel()
         #model.savePrediction(X_pred)
     elif trainingModel == "CNN": #CNN
+        model = Cnn(X_tr, y_tr, X_test, y_test, epochs = epochCount, batch_size = batchSize)
+    elif trainingModel == "CNN2D": #CNN
         model = Cnn2D(X_tr, y_tr, X_test, y_test, epochs = epochCount, batch_size = batchSize)
     elif trainingModel == "RNN": #RNN
         model = Rnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
