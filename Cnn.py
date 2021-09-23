@@ -37,6 +37,9 @@ class Cnn(object):
 		self.epochs = epochs
 		self.batch_size = batch_size
 
+		block_1_layers, block2_layers, block3_layers = 32, 16, 8
+		int(math.sqrt(32))
+
 		#https://medium.com/jatana/report-on-text-classification-using-cnn-rnn-han-f0e887214d5f
 		# For CNN, RNN and HAN
 
@@ -55,26 +58,34 @@ class Cnn(object):
 		#model.add(Conv1D(filters=256, kernel_size=3, strides=1, activation='relu', input_shape=(self.X_tr.shape[1],1), name='block1_conv1'))
 		model.add(Input(shape=(self.X_tr.shape[1],1), batch_size=None, name="Input Layer"))
 		################################################################################
-		model.add(Conv1D(filters=32, kernel_size=3, strides=1, activation='relu', name='block1_conv1'))
-		model.add(MaxPool1D(pool_size=2, name='block1_pool1'))
-		model.add(BatchNormalization(momentum=0.9, epsilon=1e-5, axis=1))
-
-		model.add(Conv1D(filters=24, kernel_size=3, strides=1, activation='relu', name='block1_conv2'))
-		model.add(MaxPool1D(pool_size=2, name='block1_pool2'))
-
-		model.add(Flatten(name='block1_flat1'))
+		model.add(Conv1D(filters=block_1_layers, kernel_size=5, strides=1, activation='relu', name='block1_conv1'))
+		model.add(MaxPool1D(pool_size=int(math.sqrt(block_1_layers)), name='block1_pool1'))
+		#model.add(BatchNormalization(momentum=0.9, epsilon=1e-5, axis=1))
+		model.add(Dense(block_1_layers, activation='relu', name='block1_dense1'))
 		model.add(Dropout(0.1, name='block1_drop1'))
 
-		model.add(Dense(64, activation='relu', name='block2_dense2'))
-		#model.add(MaxoutDense(512, nb_feature=4, name="block2_maxout2"))
-		model.add(Dropout(0.1, name='block2_drop2'))
 
-		model.add(Dense(16, activation='relu', name='block2_dense3', input_dim=5,
-			kernel_initializer='ones',
-			kernel_regularizer=tf.keras.regularizers.L1(0.01),
-			activity_regularizer=tf.keras.regularizers.L2(0.01)))
+		model.add(Conv1D(filters=block2_layers, kernel_size=3, strides=1, activation='relu', name='block2_conv1'))
+		model.add(MaxPool1D(pool_size=int(math.sqrt(block2_layers)), name='block2_pool1'))
+		model.add(Dense(block2_layers, activation='relu', name='block2_dense1'))
+		#model.add(Flatten(name='block1_flat1'))
+		model.add(Dropout(0.1, name='block2_drop1'))
+
+
+		model.add(Conv1D(filters=block3_layers, kernel_size=3, strides=1, activation='relu', name='block3_conv1'))
+		model.add(MaxPool1D(pool_size=int(math.sqrt(block3_layers)), name='block3_pool1'))
+		model.add(Dense(block3_layers, activation='relu', name='block3_dense1'))
+		#model.add(MaxoutDense(512, nb_feature=4, name="block2_maxout2"))
+		model.add(Dropout(0.1, name='block3_drop1'))
+
+		#model.add(Dense(16, activation='relu', name='block2_dense3', input_dim=5,
+		#	kernel_initializer='ones',
+		#	kernel_regularizer=tf.keras.regularizers.L1(0.01),
+		#	activity_regularizer=tf.keras.regularizers.L2(0.01)))
 
 		################################################################################
+		#model.add(Reshape((None, self.y_tr.shape[1]), name='block4_reshape1'))
+		model.add(Flatten(name='predict_flatten1'))
 		model.add(Dense(
 					units = self.y_tr.shape[1],
 					activation='softmax',
@@ -105,6 +116,8 @@ class Cnn(object):
 				metrics=['accuracy', self.precision_m, self.recall_m]
 				#metrics=[metrics]
 			)
+		for i in range(1,len(model.layers)):
+			print(model.layers[i-1].output_shape, model.layers[i].input_shape, model.layers[i-1].output_shape == model.layers[i].input_shape)
 		print(self.model.summary())
 
 	def trainAndSaveModel(self):
