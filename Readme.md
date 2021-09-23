@@ -16,3 +16,21 @@ Then go to the browser on the provided url (with port).
 
     scp ajahin@jamuna.cs.iupui.edu:/home/ajahin/contest/data/x_test.csv ./x_test.csv
     scp ajahin@jamuna.cs.iupui.edu:/home/ajahin/contest/data/input_data.csv ./input_data.csv
+
+##Total Unique Words-
+
+['K', 'R', 'Y', 'M', 'S', '-', 'W', 'N', 'G', 'T', 'C', 'A']
+
+##Word length without punctuation removal
+
+1058
+
+##Word length with punctuation removal
+
+744
+
+## Augmentation-
+
+Before Upscale/Augmentation-(12906, 2)
+After Upscale/Augmentation- (18543, 2)
+

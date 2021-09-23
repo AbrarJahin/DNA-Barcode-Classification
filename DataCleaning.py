@@ -186,7 +186,7 @@ class DataCleaning(object):
 		self.X_pred.drop(["dna"], axis=1, inplace= True, errors='ignore')
 		return
 
-	def generateOneHotEncoding(self, vector_size=200, window=20, epochs=100, min_count=2) -> None:
+	def generate4MersEncoding(self, vector_size=200, window=20, epochs=100, min_count=2) -> None:
 		mlb = MultiLabelBinarizer()
 		#self.totalUniqueWords	#=> all columns for words
 		for word in self.totalUniqueWords:
@@ -211,6 +211,34 @@ class DataCleaning(object):
 					self.X_pred.at[index, "onehot_" + word] = df.at[index, word]
 			except Exception as err:
 				print(f'Error occurred during updating row of onehot_pred: {err}')
+		self.X_pred.drop(["dna"], axis=1, inplace= True, errors='ignore')
+		return
+
+	def generateOneHotEncoding(self, vector_size=200, window=20, epochs=100, min_count=2) -> None:
+		#Should always done with 1 char and every values
+		#So, perWordLength = 1 should be set in .env file for this
+		for wordIndex in range(self.maxWordLen):	#For fixing padding
+			for word in self.totalUniqueWords:
+				self.total_data['onehot_' + str(wordIndex) + word] = 0
+				self.X_pred['onehot_' + str(wordIndex) + word] = 0
+		#For training Data
+		for index, row in self.total_data.iterrows():
+			words = self.total_data.at[index, 'dna'].split()
+			for i, w in enumerate(words):
+				try:
+					coumnName = 'onehot_' + str(i) + w
+					self.total_data.at[index, coumnName] = 1
+				except Exception as err:
+					print(f'Error occurred during updating encoding_row_train of onehot_train: {err}')
+		#For test Data
+		for index, row in self.X_pred.iterrows():
+			words = self.X_pred.at[index, 'dna'].split()
+			for i, w in enumerate(words):
+				try:
+					coumnName = 'onehot_' + str(i) + w
+					self.X_pred.at[index, coumnName] = 1
+				except Exception as err:
+					print(f'Error occurred during updating encoding_row_pred of onehot_train: {err}')
 		self.X_pred.drop(["dna"], axis=1, inplace= True, errors='ignore')
 		return
 

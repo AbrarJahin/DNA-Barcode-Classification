@@ -47,3 +47,4 @@ data/input_data*.csv
 data/x_test*.csv
 .env
 model
+logs

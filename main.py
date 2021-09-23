@@ -16,34 +16,36 @@ def main():
         config.read('.env')
         #Embedding Config
         isEmbiddingDone = config.get('Default','isEmbiddingDone') == 'True'
-        embedding = config.get('Default','embedding') #"sbert", "w2vec" "d2vec"
+        embedding = config.get('Default','embedding') #"sbert", "w2vec" "d2vec", "4Mers", "onehot"
         perWordLength = int(config.get('Default','perWordLength'))
         outputColumnCount = int(config.get('Default','outputColumnCount')) #Embedding row number
-        wordsWindowSize = int(config.get('Default','wordsWindowSize'))
+        wordsWindowSize = 1 if embedding == "onehot" else int(config.get('Default','wordsWindowSize'))
         epochCount = int(config.get('Default','epochCount'))
         minIgnoreCount = int(config.get('Default','minIgnoreCount'))
         isTrainingDone = config.get('Default','isTrainingDone') == 'True'
         trainingModel = config.get('Default','trainingModel')
         batchSize = int(config.get('Default','batchSize'))
         ifUpscaleNeeded = config.get('Default','ifUpscaleNeeded') == 'True'
+        ifCleaningNeeded = config.get('Default','ifCleaningNeeded') == 'True'
     except Exception as e:
         print(e, "=> Default valus set from code")
         isEmbiddingDone = False
         embedding = "onehot"
         perWordLength = 4
         outputColumnCount = 784 #28*28 for 2D CNN
-        wordsWindowSize = 50
+        wordsWindowSize = 1 if embedding == "onehot" else 50    #For one hot, word length should always be 1
         epochCount = 1000
         minIgnoreCount = 2
         isTrainingDone = False
         trainingModel = "CNN" # "RNN", "CNN", ......
         batchSize = 512
         ifUpscaleNeeded = True
+        ifCleaningNeeded = True
     #Start Embedding
     dataCleaning = DataCleaning()
     if not isEmbiddingDone:
         if ifUpscaleNeeded: dataCleaning.upDownScale()
-        dataCleaning.clean()
+        if ifCleaningNeeded: dataCleaning.clean()
         dataCleaning.preprocess(perWordLength)
         if embedding=="sbert":
             dataCleaning.generateSentenceEmbedding()
@@ -51,6 +53,8 @@ def main():
             dataCleaning.generateWord2VecEmbedding(vector_size=outputColumnCount, window=wordsWindowSize, epochs=epochCount, min_count=minIgnoreCount)
         elif embedding=="d2vec":
             dataCleaning.generateDoc2VecEmbedding(vector_size=outputColumnCount, window=wordsWindowSize, epochs=epochCount, min_count=minIgnoreCount)
+        elif embedding == "4-ers":
+            dataCleaning.generate4MersEncoding(vector_size=outputColumnCount, window=wordsWindowSize, epochs=epochCount, min_count=minIgnoreCount)
         elif embedding == "onehot":
             dataCleaning.generateOneHotEncoding(vector_size=outputColumnCount, window=wordsWindowSize, epochs=epochCount, min_count=minIgnoreCount)
         dataCleaning.save()
