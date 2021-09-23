@@ -32,6 +32,9 @@
     <Compile Include="Cnn2D.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Cvae.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DataCleaning.py">
       <SubType>Code</SubType>
     </Compile>

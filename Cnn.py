@@ -92,7 +92,8 @@ class Cnn(object):
 		self.model.compile(
 				loss='categorical_crossentropy',
 				#optimizer="adam",
-				optimizer='rmsprop',
+				optimizer=tf.keras.optimizers.Adam(learning_rate=.001),
+				#optimizer='rmsprop',
 				#optimizer=tf.keras.optimizers.Adam(
 				#		learning_rate=0.1,
 				#		beta_1=0.9,

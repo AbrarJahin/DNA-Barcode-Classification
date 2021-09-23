@@ -12,6 +12,7 @@ import math
 import numpy as np
 import keras
 from keras.models import load_model
+from tensorflow.keras.utils import to_categorical
 
 class FFNet(object):
 	#Lambda Functions - Start
@@ -38,7 +39,11 @@ class FFNet(object):
 				tf.keras.layers.Dense(150, input_dim=X_tr.shape[1], activation='relu', name='layer_1'),
 				tf.keras.layers.Dense(100, activation='relu', name='layer_2'),
 				tf.keras.layers.Dense(50, activation='relu', name='layer_3'),
-				tf.keras.layers.Dense(1, activation='linear', name='output_layer')
+				tf.keras.layers.Dense(
+					units = self.y_tr.shape[1],
+					activation='softmax',
+					name='output_layer'
+				)
 			])
 		#Define Logger
 		self.logger = keras.callbacks.TensorBoard(
