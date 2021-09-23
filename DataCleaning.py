@@ -199,7 +199,7 @@ class DataCleaning(object):
 		for index, row in self.total_data.iterrows():
 			try:
 				for word in df.keys():
-					self.total_data.at[index, "onehot_" + word] = df.at[index, word]
+					self.total_data.at[index, "4mers_" + word] = df.at[index, word]
 			except Exception as err:
 				print(f'Error occurred during updating row of onehot_train: {err}')
 
@@ -208,7 +208,7 @@ class DataCleaning(object):
 		for index, row in self.X_pred.iterrows():
 			try:
 				for word in df.keys():
-					self.X_pred.at[index, "onehot_" + word] = df.at[index, word]
+					self.X_pred.at[index, "4mers_" + word] = df.at[index, word]
 			except Exception as err:
 				print(f'Error occurred during updating row of onehot_pred: {err}')
 		self.X_pred.drop(["dna"], axis=1, inplace= True, errors='ignore')
@@ -257,6 +257,9 @@ class DataCleaning(object):
 		elif embedding == "d2vec":
 			X_tr = train[[s for s in train.columns if "d2vec_" in s]]
 			X_test = test[[s for s in test.columns if "d2vec_" in s]]
+		elif embedding == "4mers":
+			X_tr = train[[s for s in train.columns if "4mers_" in s]]
+			X_test = test[[s for s in test.columns if "4mers_" in s]]
 		elif embedding == "onehot":
 			X_tr = train[[s for s in train.columns if "onehot_" in s]]
 			X_test = test[[s for s in test.columns if "onehot_" in s]]
@@ -273,6 +276,8 @@ class DataCleaning(object):
 			X_pred = self.X_pred[[s for s in self.X_pred.columns if "w2vec_" in s]]
 		elif embedding == "d2vec":
 			X_pred = self.X_pred[[s for s in self.X_pred.columns if "d2vec_" in s]]
+		elif embedding == "4mers":
+			X_pred = self.X_pred[[s for s in self.X_pred.columns if "4mers_" in s]]
 		elif embedding == "onehot":
 			X_pred = self.X_pred[[s for s in self.X_pred.columns if "onehot_" in s]]
 		else:

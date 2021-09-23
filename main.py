@@ -16,7 +16,7 @@ def main():
         config.read('.env')
         #Embedding Config
         isEmbiddingDone = config.get('Default','isEmbiddingDone') == 'True'
-        embedding = config.get('Default','embedding') #"sbert", "w2vec" "d2vec", "4Mers", "onehot"
+        embedding = config.get('Default','embedding') #"sbert", "w2vec" "d2vec", "4mers", "onehot"
         perWordLength = int(config.get('Default','perWordLength'))
         outputColumnCount = int(config.get('Default','outputColumnCount')) #Embedding row number
         wordsWindowSize = 1 if embedding == "onehot" else int(config.get('Default','wordsWindowSize'))
