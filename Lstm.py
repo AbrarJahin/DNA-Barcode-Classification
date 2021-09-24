@@ -1,6 +1,5 @@
 import keras.backend as K
-from keras.layers import Dense, Embedding, LSTM, Conv1D, MaxPooling1D, Flatten, Reshape, MaxPool1D, BatchNormalization, Dropout, Input, Masking, Bidirectional
-from keras.layers.wrappers import TimeDistributed
+from keras.layers import Dense, Embedding, LSTM, Conv1D, MaxPooling1D, Flatten, Reshape, MaxPool1D, BatchNormalization, Dropout, Input, Bidirectional
 from keras.models import Sequential
 from Utils import Utils
 import pickle
@@ -19,7 +18,7 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras import regularizers
 import sklearn.metrics as metrics
 
-class BiLstm(object):
+class Lstm(object):
 	#Lambda Functions - Start
 	def recall_m(self, y_true, y_pred):
 		true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
@@ -34,37 +33,82 @@ class BiLstm(object):
 		return precision
 	#Lambda Functions - End
 
-	def __init__(self, X_tr, y_tr, X_test, y_test, model_filename = 'Lstm.sav', epochs = 10, batch_size = 512):
+	def __init__(self, X_tr, y_tr, X_test, y_test, model_filename = 'Cnn1D.sav', epochs = 10, batch_size = 512):
 		self.epochs = epochs
 		self.batch_size = batch_size
-		self.dimention = int(math.sqrt(X_tr.shape[1]))
+
+		block_1_layers, block2_layers, block3_layers = 32, 16, 8
+		int(math.sqrt(32))
+
+		#https://medium.com/jatana/report-on-text-classification-using-cnn-rnn-han-f0e887214d5f
+		# For CNN, RNN and HAN
 
 		self.y_tr = to_categorical(y_tr['labels'].values, dtype = "uint8")
 		self.y_test = to_categorical(y_test['labels'].values, dtype = "uint8")
 
-		self.X_tr = X_tr
-		self.X_test = X_test
-		#self.X_tr = X_tr.values.reshape(X_tr.values.shape[0], self.dimention, self.dimention)
-		#self.X_test = X_test.values.reshape(X_test.values.shape[0], self.dimention, self.dimention)
+		self.X_tr = X_tr.values.reshape(X_tr.values.shape[0], X_tr.values.shape[1], 1)
+		self.X_test = X_test.values.reshape(X_test.values.shape[0], X_test.values.shape[1], 1)
 
 		self.model_filename = "../model/" + model_filename
 
+		#self.y_tr.shape[1] = 1214
+
 		#Define The Model
 		model = tf.keras.Sequential()
+		#model.add(Conv1D(filters=256, kernel_size=3, strides=1, activation='relu', input_shape=(self.X_tr.shape[1],1), name='block1_conv1'))
 		model.add(Input(shape=(self.X_tr.shape[1],1), batch_size=None, name="Input Layer"))
 		################################################################################
-		model.add(Masking(mask_value =0))
-		model.add(Bidirectional(LSTM(10, activation='tanh', return_sequences = True, dropout=0.2)))
-		model.add(Bidirectional(LSTM(10, activation='tanh', return_sequences = True, dropout=0.2), name="utter"))
-		model.add(TimeDistributed(Dense(5,activation='softmax')))
+		#model.add(Conv1D(filters=block_1_layers, kernel_size=5, strides=1, activation='relu', name='block1_conv1'))
 
-		#model.add(LSTM(62, return_sequences=True))
-		#model.add(Dense(22, activation='softmax'))
-		#model.add(Flatten())
+		model.add(LSTM(
+			units = block_1_layers, activation='tanh', recurrent_activation='sigmoid',
+			use_bias=True, kernel_initializer='glorot_uniform',
+			recurrent_initializer='orthogonal',
+			bias_initializer='zeros', unit_forget_bias=True,
+			kernel_regularizer=None, recurrent_regularizer=None, bias_regularizer=None,
+			activity_regularizer=None, kernel_constraint=None, recurrent_constraint=None,
+			bias_constraint=None, dropout=0.0, recurrent_dropout=0.0,
+			return_sequences=False, return_state=False, go_backwards=False, stateful=False,
+			time_major=False, unroll=False, name='block1_lstm1'
+		))
+
+		#model.add(Bidirectional(LSTM(
+		#	units = block_1_layers, activation='tanh', recurrent_activation='sigmoid',
+		#	use_bias=True, kernel_initializer='glorot_uniform',
+		#	recurrent_initializer='orthogonal',
+		#	bias_initializer='zeros', unit_forget_bias=True,
+		#	kernel_regularizer=None, recurrent_regularizer=None, bias_regularizer=None,
+		#	activity_regularizer=None, kernel_constraint=None, recurrent_constraint=None,
+		#	bias_constraint=None, dropout=0.0, recurrent_dropout=0.0,
+		#	return_sequences=False, return_state=False, go_backwards=False, stateful=False,
+		#	time_major=False, unroll=False, name='block1_lstm1'
+		#)))
+		#model.add(BatchNormalization(momentum=0.9, epsilon=1e-5, axis=1))
+		model.add(Dense(block_1_layers, activation='relu', name='block1_dense1'))
+		model.add(Dropout(0.1, name='block1_drop1'))
+
+		#model.add(LSTM(units = block2_layers, activation='tanh', recurrent_activation='sigmoid', use_bias=True, name='block2_lstm1'))
+		model.add(Dense(block2_layers, activation='relu', name='block2_dense1'))
+		#model.add(Flatten(name='block1_flat1'))
+		model.add(Dropout(0.1, name='block2_drop1'))
+
+		model.add(BatchNormalization(momentum=0.9, epsilon=1e-5, axis=1))
+
+		#model.add(LSTM(units = block3_layers, activation='tanh', recurrent_activation='sigmoid', use_bias=True, kernel_initializer='glorot_uniform', name='block3_lstm1'))
+		model.add(Dense(block3_layers, activation='relu', name='block3_dense1'))
+		#model.add(MaxoutDense(512, nb_feature=4, name="block2_maxout2"))
+		model.add(Dropout(0.1, name='block3_drop1'))
+
+		#model.add(Dense(16, activation='relu', name='block2_dense3', input_dim=5,
+		#	kernel_initializer='ones',
+		#	kernel_regularizer=tf.keras.regularizers.L1(0.01),
+		#	activity_regularizer=tf.keras.regularizers.L2(0.01)))
+
 		################################################################################
+		#model.add(Reshape((None, self.y_tr.shape[1]), name='block4_reshape1'))
 		model.add(Flatten(name='predict_flatten1'))
 		model.add(Dense(
-					units = self.y_tr.shape[1],
+					self.y_tr.shape[1],
 					activation='softmax',
 					name="predict"
 				))
@@ -80,7 +124,8 @@ class BiLstm(object):
 		self.model.compile(
 				loss='categorical_crossentropy',
 				#optimizer="adam",
-				optimizer='rmsprop',
+				optimizer=tf.keras.optimizers.Adam(learning_rate=.001),
+				#optimizer='rmsprop',
 				#optimizer=tf.keras.optimizers.Adam(
 				#		learning_rate=0.1,
 				#		beta_1=0.9,
@@ -118,7 +163,7 @@ class BiLstm(object):
 		try:
 			pickle.dump(self.model, open(Utils.getAbsFilePath(self.model_filename), 'wb'))	#Store Model to File
 		except Exception as e:
-			print("RNN-Model Save Failed")
+			print("CNN-Model Save Failed")
 			print(e)
 		return
 
@@ -127,14 +172,16 @@ class BiLstm(object):
 			self.model = pickle.load(open(Utils.getAbsFilePath(self.model_filename), 'rb'))
 			result = self.model.score(self.X_test, self.y_test)
 			print(result)
-			print("RNN-Model Loaded Successfully")
+			print("CNN-Model Loaded Successfully")
 		except Exception as e:
-			print("RNN-Model Loaded Failed")
+			print("CNN-Model Loaded Failed")
 			print(e)
 
 	def savePrediction(self, X_pred, embedding = "sbert", output_file_name = str(math.ceil(datetime.datetime.now().timestamp()))+"_submission.csv"):
-		x_pred_reshaped = X_pred.values.reshape(X_pred.values.shape[0], self.dimention, self.dimention, 1)
+		#x_pred_reshaped = X_pred.values.reshape(X_pred.values.shape[0], self.dimention, self.dimention, 1)
+		x_pred_reshaped = X_pred.values.reshape(X_pred.values.shape[0], X_pred.values.shape[1], 1)
 		y_pred = self.model.predict(x_pred_reshaped)
+		y_pred_processed = list(map(np.argmax, y_pred))
 		df = pd.DataFrame({'id':list(X_pred.index),'labels': list(y_pred)})
 		df = df.set_index(['id'])
 		df.to_csv(Utils.getAbsFilePath(output_file_name))

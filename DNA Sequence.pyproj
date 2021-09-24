@@ -26,6 +26,7 @@
     <Compile Include="BiLstm.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Lstm.py" />
     <Compile Include="Cnn.py">
       <SubType>Code</SubType>
     </Compile>
@@ -45,9 +46,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="RandomForest.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Rnn.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Svm.py">

@@ -2,7 +2,7 @@ import tensorflow as tf
 import configparser
 from DataCleaning import DataCleaning
 from RandomForest import RandomForest
-from Rnn import Rnn
+from Lstm import Lstm
 from FFNet import FFNet
 from Cnn import Cnn
 from Cnn2D import Cnn2D
@@ -37,7 +37,7 @@ def main():
         epochCount = 1000
         minIgnoreCount = 2
         isTrainingDone = False
-        trainingModel = "CNN" # "RNN", "CNN", ......
+        trainingModel = "LSTM" # "RNN", "CNN", ......
         batchSize = 512
         ifUpscaleNeeded = True
         ifCleaningNeeded = True
@@ -83,8 +83,6 @@ def main():
         model = BiLstm(X_tr, y_tr, X_test, y_test, epochs = epochCount, batch_size = batchSize)
     elif trainingModel == "FFNet": #FFNet
         model = FFNet(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
-    elif trainingModel == "RNN": #RNN
-        model = Rnn(X_tr, y_tr, X_test, y_test, totalNoOfLebels)
 
     if not isTrainingDone:
         model.trainAndSaveModel()

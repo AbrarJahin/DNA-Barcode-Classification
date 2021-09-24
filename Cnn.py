@@ -87,7 +87,7 @@ class Cnn(object):
 		#model.add(Reshape((None, self.y_tr.shape[1]), name='block4_reshape1'))
 		model.add(Flatten(name='predict_flatten1'))
 		model.add(Dense(
-					units = self.y_tr.shape[1],
+					self.y_tr.shape[1],
 					activation='softmax',
 					name="predict"
 				))
@@ -160,6 +160,7 @@ class Cnn(object):
 		#x_pred_reshaped = X_pred.values.reshape(X_pred.values.shape[0], self.dimention, self.dimention, 1)
 		x_pred_reshaped = X_pred.values.reshape(X_pred.values.shape[0], X_pred.values.shape[1], 1)
 		y_pred = self.model.predict(x_pred_reshaped)
+		y_pred = list(map(np.argmax, y_pred))
 		df = pd.DataFrame({'id':list(X_pred.index),'labels': list(y_pred)})
 		df = df.set_index(['id'])
 		df.to_csv(Utils.getAbsFilePath(output_file_name))
