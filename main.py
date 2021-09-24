@@ -30,7 +30,7 @@ def main():
         ifOutlireCharRemoveNeeded = config.get('Default','ifOutlireCharRemoveNeeded') == 'True'
     except Exception as e:
         print(e, "=> Default valus set from code")
-        isEmbiddingDone = True
+        isEmbiddingDone = False
         embedding = "onehot"
         perWordLength = 1 if embedding == "onehot" else 4
         outputColumnCount = 784 #28*28 for 2D CNN
@@ -42,7 +42,7 @@ def main():
         batchSize = 512
         ifUpscaleNeeded = True
         ifCleaningNeeded = True
-        ifOutlireCharRemoveNeeded = True
+        ifOutlireCharRemoveNeeded = False
     #Start Embedding
     dataCleaning = DataCleaning()
     if not isEmbiddingDone:
