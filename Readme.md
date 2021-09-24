@@ -21,13 +21,15 @@ Then go to the browser on the provided url (with port).
 
 ['K', 'R', 'Y', 'M', 'S', '-', 'W', 'N', 'G', 'T', 'C', 'A']
 
+ACTG 
+
 ##Word length without punctuation removal
 
 1058
 
 ##Word length with punctuation removal
 
-744
+744*11 = 
 
 ## Augmentation-
 

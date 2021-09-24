@@ -142,7 +142,7 @@ class Cnn(object):
 		try:
 			pickle.dump(self.model, open(Utils.getAbsFilePath(self.model_filename), 'wb'))	#Store Model to File
 		except Exception as e:
-			print("RNN-Model Save Failed")
+			print("CNN-Model Save Failed")
 			print(e)
 		return
 
@@ -151,13 +151,14 @@ class Cnn(object):
 			self.model = pickle.load(open(Utils.getAbsFilePath(self.model_filename), 'rb'))
 			result = self.model.score(self.X_test, self.y_test)
 			print(result)
-			print("RNN-Model Loaded Successfully")
+			print("CNN-Model Loaded Successfully")
 		except Exception as e:
-			print("RNN-Model Loaded Failed")
+			print("CNN-Model Loaded Failed")
 			print(e)
 
 	def savePrediction(self, X_pred, embedding = "sbert", output_file_name = str(math.ceil(datetime.datetime.now().timestamp()))+"_submission.csv"):
-		x_pred_reshaped = X_pred.values.reshape(X_pred.values.shape[0], self.dimention, self.dimention, 1)
+		#x_pred_reshaped = X_pred.values.reshape(X_pred.values.shape[0], self.dimention, self.dimention, 1)
+		x_pred_reshaped = X_pred.values.reshape(X_pred.values.shape[0], X_pred.values.shape[1], 1)
 		y_pred = self.model.predict(x_pred_reshaped)
 		df = pd.DataFrame({'id':list(X_pred.index),'labels': list(y_pred)})
 		df = df.set_index(['id'])
