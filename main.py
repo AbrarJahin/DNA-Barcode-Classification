@@ -38,7 +38,7 @@ def main():
         epochCount = 1500
         minIgnoreCount = 2
         isTrainingDone = False
-        trainingModel = "CNN" # "LSTM", "BiLSTM", ......
+        trainingModel = "RndomForest" # "LSTM", "BiLSTM", ......
         batchSize = 512
         ifUpscaleNeeded = True
         ifCleaningNeeded = True
