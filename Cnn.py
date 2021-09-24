@@ -62,7 +62,7 @@ class Cnn(object):
 		model.add(Conv1D(filters=block_1_layers+10, kernel_size=5, strides=1, activation='relu', name='block1_conv1'))
 		model.add(MaxPool1D(pool_size=min(6,int(math.sqrt(block_1_layers))), name='block1_pool1'))
 		#model.add(BatchNormalization(momentum=0.9, epsilon=1e-5, axis=1))
-		model.add(Dense(block_1_layers+22, activation='relu', name='block1_dense1'))
+		model.add(Dense(block_1_layers+5, activation='relu', name='block1_dense1'))
 		model.add(Dropout(0.1, name='block1_drop1'))
 		#model.add(BatchNormalization(momentum=0.6, epsilon=1e-5, axis=1, name='block1_bn1'))
 
