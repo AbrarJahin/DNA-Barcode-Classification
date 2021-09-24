@@ -46,6 +46,7 @@ def main():
     #Start Embedding
     dataCleaning = DataCleaning()
     if not isEmbiddingDone:
+        print("##################=-Embedding is running-=####################################")
         if ifUpscaleNeeded: dataCleaning.upDownScale()
         if ifCleaningNeeded: dataCleaning.clean(ifOutlireCharRemoveNeeded = ifOutlireCharRemoveNeeded)
         dataCleaning.preprocess(perWordLength)
