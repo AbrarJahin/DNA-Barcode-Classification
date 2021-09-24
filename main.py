@@ -30,7 +30,7 @@ def main():
         ifOutlireCharRemoveNeeded = config.get('Default','ifOutlireCharRemoveNeeded') == 'True'
     except Exception as e:
         print(e, "=> Default valus set from code")
-        isEmbiddingDone = False
+        isEmbiddingDone = True
         embedding = "onehot"
         perWordLength = 1 if embedding == "onehot" else 4
         outputColumnCount = 784 #28*28 for 2D CNN

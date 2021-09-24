@@ -255,6 +255,7 @@ class DataCleaning(object):
 	def getTrainTestSplit(self, file_name = "input_data.csv", embedding = "sbert"):
 		self.total_data = pd.read_csv(Utils.getAbsFilePath(file_name), index_col=0)
 		train, test = train_test_split(self.total_data, test_size=0.2)
+		train = self.total_data
 
 		y_tr =  train[['labels']]
 		y_test = test[['labels']]

@@ -38,11 +38,11 @@ class Cnn(object):
 		self.batch_size = batch_size
 
 		block_1_layers, block2_layers, block3_layers = 64, 32, 16
-		int(math.sqrt(32))
 
 		#https://medium.com/jatana/report-on-text-classification-using-cnn-rnn-han-f0e887214d5f
 		# For CNN, RNN and HAN
 
+		self.range = max(y_tr["labels"]) - min(y_tr["labels"]) + 1
 		self.y_tr = to_categorical(y_tr['labels'].values, dtype = "uint8")
 		self.y_test = to_categorical(y_test['labels'].values, dtype = "uint8")
 
@@ -58,10 +58,10 @@ class Cnn(object):
 		#model.add(Conv1D(filters=256, kernel_size=3, strides=1, activation='relu', input_shape=(self.X_tr.shape[1],1), name='block1_conv1'))
 		model.add(Input(shape=(self.X_tr.shape[1],1), batch_size=None, name="Input Layer"))
 		################################################################################
-		model.add(Conv1D(filters=block_1_layers, kernel_size=5, strides=1, activation='relu', name='block1_conv1'))
+		model.add(Conv1D(filters=block_1_layers+10, kernel_size=5, strides=1, activation='relu', name='block1_conv1'))
 		model.add(MaxPool1D(pool_size=min(6,int(math.sqrt(block_1_layers))), name='block1_pool1'))
 		#model.add(BatchNormalization(momentum=0.9, epsilon=1e-5, axis=1))
-		model.add(Dense(block_1_layers, activation='relu', name='block1_dense1'))
+		model.add(Dense(block_1_layers+22, activation='relu', name='block1_dense1'))
 		model.add(Dropout(0.1, name='block1_drop1'))
 		model.add(BatchNormalization(momentum=0.6, epsilon=1e-5, axis=1, name='block1_bn1'))
 
@@ -88,6 +88,7 @@ class Cnn(object):
 		model.add(Flatten(name='predict_flatten1'))
 		model.add(Dense(
 					self.y_tr.shape[1],
+					#self.range,
 					activation='softmax',
 					name="predict"
 				))
