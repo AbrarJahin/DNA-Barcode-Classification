@@ -14,7 +14,7 @@ class RandomForest(object):
 		self.model = None
 
 	def trainAndSaveModel(self):
-		rf = RandomForestClassifier()
+		rf = RandomForestClassifier(n_estimators = 150)
 		self.model = rf.fit(
 					self.X_tr,
 					self.y_tr.values.ravel()
