@@ -35,7 +35,7 @@ def main():
         perWordLength = 1 if embedding == "onehot" else 4
         outputColumnCount = 784 #28*28 for 2D CNN
         wordsWindowSize = 1 if embedding == "onehot" else 50    #For one hot, word length should always be 1
-        epochCount = 1000
+        epochCount = 600
         minIgnoreCount = 2
         isTrainingDone = False
         trainingModel = "CNN" # "LSTM", "BiLSTM", ......
