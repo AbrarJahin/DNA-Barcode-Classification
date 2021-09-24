@@ -21,7 +21,22 @@ Then go to the browser on the provided url (with port).
 
 ['K', 'R', 'Y', 'M', 'S', '-', 'W', 'N', 'G', 'T', 'C', 'A']
 
-ACTG 
+##Occurances of unique words (in train and test)-
+
+'A': 4100241
+'C': 2195186
+'T': 5107712
+'G': 2010013
+
+'N': 5541
+'K': 4
+'M': 10
+'R': 18
+'S': 5
+'W': 24
+'Y': 22
+
+So, we can keep only "ACTG" as others are outlires.
 
 ##Word length without punctuation removal
 

@@ -27,25 +27,27 @@ def main():
         batchSize = int(config.get('Default','batchSize'))
         ifUpscaleNeeded = config.get('Default','ifUpscaleNeeded') == 'True'
         ifCleaningNeeded = config.get('Default','ifCleaningNeeded') == 'True'
+        ifOutlireCharRemoveNeeded = config.get('Default','ifOutlireCharRemoveNeeded') == 'True'
     except Exception as e:
         print(e, "=> Default valus set from code")
-        isEmbiddingDone = True
+        isEmbiddingDone = False
         embedding = "onehot"
         perWordLength = 1 if embedding == "onehot" else 4
         outputColumnCount = 784 #28*28 for 2D CNN
         wordsWindowSize = 1 if embedding == "onehot" else 50    #For one hot, word length should always be 1
-        epochCount = 1000
+        epochCount = 1500
         minIgnoreCount = 2
         isTrainingDone = False
-        trainingModel = "LSTM" # "RNN", "CNN", ......
+        trainingModel = "CNN" # "LSTM", "BiLSTM", ......
         batchSize = 512
         ifUpscaleNeeded = True
         ifCleaningNeeded = True
+        ifOutlireCharRemoveNeeded = True
     #Start Embedding
     dataCleaning = DataCleaning()
     if not isEmbiddingDone:
         if ifUpscaleNeeded: dataCleaning.upDownScale()
-        if ifCleaningNeeded: dataCleaning.clean()
+        if ifCleaningNeeded: dataCleaning.clean(ifOutlireCharRemoveNeeded = ifOutlireCharRemoveNeeded)
         dataCleaning.preprocess(perWordLength)
         if embedding=="sbert":
             dataCleaning.generateSentenceEmbedding()

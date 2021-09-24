@@ -23,22 +23,31 @@ import math
 import string
 from Utils import Utils
 from sklearn.preprocessing import MultiLabelBinarizer
+from collections import Counter
 
 class DataCleaning(object):
 	#Testing data embedding is also stored in here, as we are using same model for traing
 	#Lambda Functions - Start
-	def cleanString(self, text: str)-> str:
+	def cleanString(self, text: str, ifOutlireCharRemoveNeeded = False)-> str:
 		#remove punctuation
 		text = "".join([char for char in text if char not in string.punctuation])
+		if ifOutlireCharRemoveNeeded:
+			text = "".join([char for char in text if char not in ['N', 'K', 'M', 'R', 'S', 'W', 'Y']])
 		# Convert all to lower
 			#not needed in here
 		# Remove Stop Words
 			#not needed in here
 		return text
 
+	def appendCounterDict(self, wordDict: dict)-> None:
+		for k in wordDict:
+			self.wordCounter[k]+=wordDict[k]
+		return
+
 	def splitWords(self, dna_seq: str, word_len: int)-> str:
 		strArray = [dna_seq[index : index + word_len] for index in range(0, len(dna_seq), word_len)]
 		self.totalUniqueWords.update(strArray)
+		self.appendCounterDict(dict(Counter(strArray)))
 		text = " ".join(strArray)
 		self.maxWordLen = max(self.maxWordLen, len(strArray))
 		return text
@@ -53,6 +62,7 @@ class DataCleaning(object):
 		self.lebels = set(dataY['labels'])
 		self.X_pred = pd.read_csv(Utils.getAbsFilePath(test_x_file), index_col=0)
 		self.totalUniqueWords = set()
+		self.wordCounter = defaultdict(int)
 
 	def upDownScale(self, ratio = 10) -> None:
 		#Upscale data with lowest frequency or upscale data with highest frequency
@@ -84,9 +94,9 @@ class DataCleaning(object):
 				)
 		return None
 
-	def clean(self, word_len = 1) -> None:
-		self.total_data['dna'] = self.total_data['dna'].apply(lambda x: self.cleanString(x))
-		self.X_pred['dna'] = self.X_pred['dna'].apply(lambda x: self.cleanString(x))
+	def clean(self, ifOutlireCharRemoveNeeded = False) -> None:
+		self.total_data['dna'] = self.total_data['dna'].apply(lambda x: self.cleanString(x, ifOutlireCharRemoveNeeded))
+		self.X_pred['dna'] = self.X_pred['dna'].apply(lambda x: self.cleanString(x, ifOutlireCharRemoveNeeded))
 		return
 
 	def preprocess(self, word_len = 4) -> None:
