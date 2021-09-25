@@ -26,6 +26,9 @@
     <Compile Include="BiLstm.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="FixFile.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Lstm.py" />
     <Compile Include="Cnn.py">
       <SubType>Code</SubType>
