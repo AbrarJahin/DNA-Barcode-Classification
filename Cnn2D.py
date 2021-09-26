@@ -162,6 +162,7 @@ class Cnn2D(object):
 	def savePrediction(self, X_pred, embedding = "sbert", output_file_name = str(math.ceil(datetime.datetime.now().timestamp()))+"_submission.csv"):
 		x_pred_reshaped = X_pred.values.reshape(X_pred.values.shape[0], self.dimention, self.dimention, 1)
 		y_pred = self.model.predict(x_pred_reshaped)
+		y_pred = list(map(np.argmax, y_pred))
 		df = pd.DataFrame({'id':list(X_pred.index),'labels': list(y_pred)})
 		df = df.set_index(['id'])
 		df.to_csv(Utils.getAbsFilePath(output_file_name))

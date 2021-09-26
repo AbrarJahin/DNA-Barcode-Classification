@@ -28,6 +28,7 @@ def main():
         ifUpscaleNeeded = config.get('Default','ifUpscaleNeeded') == 'True'
         ifCleaningNeeded = config.get('Default','ifCleaningNeeded') == 'True'
         ifOutlireCharRemoveNeeded = config.get('Default','ifOutlireCharRemoveNeeded') == 'True'
+        augmantationRatio = int(config.get('Default','augmantationRatio'))
     except Exception as e:
         print(e, "=> Default valus set from code")
         isEmbiddingDone = False
@@ -43,11 +44,12 @@ def main():
         ifUpscaleNeeded = True
         ifCleaningNeeded = True
         ifOutlireCharRemoveNeeded = False
+        augmantationRatio = 10
     #Start Embedding
     dataCleaning = DataCleaning()
     if not isEmbiddingDone:
         print("##################=-Embedding is running-=####################################")
-        if ifUpscaleNeeded: dataCleaning.upDownScale()
+        if ifUpscaleNeeded: dataCleaning.upDownScale(ratio = augmantationRatio)
         if ifCleaningNeeded: dataCleaning.clean(ifOutlireCharRemoveNeeded = ifOutlireCharRemoveNeeded)
         dataCleaning.preprocess(perWordLength)
         if embedding=="sbert":
@@ -56,7 +58,7 @@ def main():
             dataCleaning.generateWord2VecEmbedding(vector_size=outputColumnCount, window=wordsWindowSize, epochs=epochCount, min_count=minIgnoreCount)
         elif embedding=="d2vec":
             dataCleaning.generateDoc2VecEmbedding(vector_size=outputColumnCount, window=wordsWindowSize, epochs=epochCount, min_count=minIgnoreCount)
-        elif embedding == "4-ers":
+        elif embedding == "keras":
             dataCleaning.generate4MersEncoding(vector_size=outputColumnCount, window=wordsWindowSize, epochs=epochCount, min_count=minIgnoreCount)
         elif embedding == "onehot":
             dataCleaning.generateOneHotEncoding(vector_size=outputColumnCount, window=wordsWindowSize, epochs=epochCount, min_count=minIgnoreCount)

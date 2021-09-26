@@ -38,7 +38,8 @@ class FFNet(object):
 		self.model = Sequential([
 				tf.keras.layers.Dense(150, input_dim=X_tr.shape[1], activation='relu', name='layer_1'),
 				tf.keras.layers.Dense(100, activation='relu', name='layer_2'),
-				tf.keras.layers.Dense(50, activation='relu', name='layer_3'),
+				tf.keras.layers.Dense(80, activation='relu', name='layer_3'),
+				tf.keras.layers.Dense(50, activation='relu', name='layer_4'),
 				tf.keras.layers.Dense(
 					units = self.y_tr.shape[1],
 					activation='softmax',
@@ -92,6 +93,7 @@ class FFNet(object):
 
 	def savePrediction(self, X_pred, embedding = "sbert", output_file_name = str(math.ceil(datetime.datetime.now().timestamp()))+"_submission.csv"):
 		y_pred = self.model.predict(X_pred)
+		y_pred = list(map(np.argmax, y_pred))
 		df = pd.DataFrame({'id':list(X_pred.index),'labels': list(y_pred)})
 		df = df.set_index(['id'])
 		df.to_csv(Utils.getAbsFilePath(output_file_name))
