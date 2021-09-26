@@ -12,10 +12,8 @@ List of packages with versions are mentioned in [here](venv_packages.txt). To re
 
 This project can be run in 2 ways-
 
-    1. By running **main.py** file (with this command- `python3 main.py`)
-
-    2. With Visual Studio (by opening ***DNA Sequence.sln*** file, tasted in [Visual Studio 2019]() )
-    2. With Visual Studio (by opening ***DNA Sequence.sln*** file, tasted in [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/ "Visual Studio Download Link") )
+1. By running **main.py** file (with this command- `python3 main.py`)
+2. With Visual Studio (by opening ***DNA Sequence.sln*** file, tasted in [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/ "Visual Studio Download Link") )
 
 All the configurations are coming from a ***.env*** file which is not present in git. To make the file, command is-
 
