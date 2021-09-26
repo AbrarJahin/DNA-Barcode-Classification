@@ -76,6 +76,8 @@ So, here are different variables can be set for the code from here. All the poss
 
 All the embedding can work with all the ML model, so different combinations can be possible. All the ML models are self adjustable to the feature size of the embedings (so, if matrix size changes, you don't need to change any value).
 
+If configuration reading failed from `.env` file, then default values are set from [here](./main.py#32).
+
 ## Training Status View during Traing
 
 For DL models, tensorboard log is setup from where we can see the training status and learning rates and different graphs.
@@ -143,13 +145,32 @@ So, we can keep only "A", "C", "T", and "G" as others are outlires (which is act
 Before Upscale/Augmentation-(12906, 2)
 After Upscale/Augmentation- (18543, 2)
 
-Augmentation are 
+## Followed Procedure
 
-## Get a model layer input shape-
+1. Read data in pandas
+2. Preprocess
+    1. If upscale needed (which is needed for our case), upscale/ augment the data
+    2. Removed punctuation and outlire charecters
+    3. Then process the seequence to chars of defined length each by inserting required saces in required places
+    4. Create embeddings/encodings for feeding ML/DL models
+    5. Pad the data embedding for making all the data having same no of features
+    6. Split the data with training and test for training and validating the model
+3. Feed the encoding/embedding to the ML model
+4. Validate scores
+5. Save the model and predictions
 
-model.layers[0].input_shape
-model.layers[0].output_shape
+Saved predictions can be found in [this folder](./data/) with name like `*_submission.csv`.
 
-### check if input shape are OK
-i == 0....n-1
-model.layers[i].output_shape == model.layers[i+1].input_shape
+## Command needed to run the program in Linux Server
+
+    cd DNA-Barcode-Classification
+    python3 main.py
+
+If you need to run in background detached from current user with writing the output to a file, then the command should be like this-
+
+    nohup python3 ~/DNA-Barcode-Classification/main.py>~/output.txt &
+
+And then see the current output like this-
+
+    tail -f ~/output.txt
+___________
